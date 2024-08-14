@@ -10,9 +10,9 @@
 
       <nav id="navmenu" class="navmenu">
         <ul>
-          <li><a href="#hero" class="active">Home</a></li>
+          <li><a href="{% url 'home_page' %}">Home</a></li>
           <li><a href="#about">About</a></li>
-          <li><a href="{% url 'blog_list' %}">Blog</a></li>
+          <li><a href="{% url 'blog_list' %}">BlogList</a></li>
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
