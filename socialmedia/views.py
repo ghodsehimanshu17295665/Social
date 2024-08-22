@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
-# from django.views import View
+from django.contrib import messages
 from .models import Profile, Post, Comment
+from .forms import SignUpForm
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, authenticate, logout
 
 
 class Home(TemplateView):
@@ -11,22 +14,18 @@ class Home(TemplateView):
         return render(request, self.template_name)
 
 
-class LoginSignup(TemplateView):
-    template_name = "login.html"
+# class Signup(TemplateView):
+#     template_name = "registration/signup.html"
+
+#     def get(self, request):
+#         return render(request, self.template_name)
+
+
+class Login(TemplateView):
+    template_name = "registration/login.html"
 
     def get(self, request):
         return render(request, self.template_name)
-
-
-class UserProfile(TemplateView):
-    template_name = "user/profile.html"
-
-    def get(self, request):
-        data = Profile.objects.all().first()
-        context = {
-            "data": data
-        }
-        return render(request, self.template_name, context)
 
 
 class BlogList(TemplateView):
@@ -47,13 +46,25 @@ class ViewBlog(TemplateView):
     template_name = "user/Viewblog.html"
 
     def get(self, request, pk):
-        post = Post.objects.filter(id=pk).first()
+        post = Post.objects.get(id=pk)
+
         comments = Comment.objects.filter(post=post)
         context = {
             "post": post,
-            "comments": comments
+            "comments": comments,
         }
         return render(request, self.template_name, context=context)
+
+
+class UserProfile(TemplateView):
+    template_name = "user/profile.html"
+
+    def get(self, request, pk):
+        data = Profile.objects.filter(user=pk).first()
+        context = {
+            "data": data,
+        }
+        return render(request, self.template_name, context)
 
 
 class AddCommentView(TemplateView):
@@ -67,3 +78,65 @@ class AddCommentView(TemplateView):
             "comments": comments
         }
         return render(request, self.template_name, context=context)
+
+
+
+def sign_up(request):
+    if request.user.is_authenticated:
+        return redirect('/')
+    
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # Automatically log in the user after signup
+            messages.success(request, "Account created successfully! You are now logged in.")
+            return redirect('/')
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = SignUpForm()
+    
+    return render(request, 'registration/signup.html', {'form': form})
+
+
+# Login View Function
+def user_login(request):
+    if not request.user.is_authenticated:
+        if request.method == 'POST':
+            form = AuthenticationForm(request=request, data=request.POST)
+            if form.is_valid():
+                user_name = form.cleaned_data['username']
+                user_password = form.cleaned_data['password']
+                user = authenticate(username=user_name, password=user_password)
+                if user is not None:
+                    login(request, user)
+                    messages.success(request, 'Logged in Successfully!!')
+                    return redirect('/profile/page/')
+                else:
+                    form.add_error(None, 'Invalid username or password')
+        else:
+            form = AuthenticationForm()
+        return render(request, 'registration/login.html', {'form': form})
+    else:
+        return redirect('/profile/page/')
+
+
+# Profile
+def user_profile(request):
+    if request.user.is_authenticated:
+        print(request.user.id)
+        data = Profile.objects.get(user=request.user)
+        print(data)
+        context = {
+            'data': data
+        }
+        return render(request, 'registration/profilepage.html', context)
+    else:
+        return redirect('/login/')
+
+
+# Logout
+def user_logout(request):
+    logout(request)
+    return redirect('/')
