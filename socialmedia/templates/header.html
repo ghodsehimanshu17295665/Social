@@ -17,7 +17,13 @@
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
 
-      <a class="btn-getstarted" href="{% url 'login_signup' %}">Login/SignUP</a>
+      {% if user.is_authenticated %}
+        <a class="btn-getstarted" href="{% url 'logout' %}">Logout</a>
+        <a class="btn-getstarted" href="{% url 'profilePage' %}">Profile</a>
+      {% else %}
+        <a class="btn-getstarted" href="{% url 'signup' %}">Sign Up</a>
+        <a class="btn-getstarted" href="{% url 'login' %}">Login</a>
+      {% endif %}
 
     </div>
   </header>
