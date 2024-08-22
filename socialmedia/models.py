@@ -36,7 +36,7 @@ class Profile(TimeStampedModel):
         User, on_delete=models.CASCADE, related_name="profile"
     )
     profile_picture = models.ImageField(
-        upload_to="profile_pics/", blank=True, null=True
+        upload_to="profile_pics/", default='profile_pics/default_profile_pic.jpg'
     )
     birth_date = models.DateField(null=True, blank=True)
     bio = models.TextField(blank=True, null=True)
