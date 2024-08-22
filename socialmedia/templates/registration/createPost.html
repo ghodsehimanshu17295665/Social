@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #093982 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        form {
+            width: 100%;
+        }
+        input[type="text"], textarea, input[type="file"] {
+            margin-bottom: 10px;
+            padding: 10px;
+            width: 100%;
+        }
+        input[type="text"] {
+            font-size: 1.2rem;
+        }
+        textarea {
+            height: 200px;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            margin-top: 10px; /* Adjust button spacing */
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #preview {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 100%;
+            max-width: 600px;
+        }
+        #imagePreview {
+            max-width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create a New Post</h1>
+        <form id="postForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="text" id="title" name="title" placeholder="Post Title" required><br><br>
+            <textarea id="content" name="content" rows="5" placeholder="Write your post here..." required></textarea><br><br>
+            <input type="file" id="image" name="image" accept="image/*"><br><br>
+            <button type="submit">Create Post</button><br><br>
+            <a href="{% url 'profilePage' %}"><button type="button">Back To Profile</button></a> <!-- Use a link for the Back button -->
+        </form>
+        <div id="preview"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('postForm');
+        const preview = document.getElementById('preview');
+        const imageInput = document.getElementById('image');
+        let imageDataUrl = '';
+
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageDataUrl = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+
+            // Display data in preview div
+            preview.innerHTML = `
+                <h2>${title}</h2>
+                <p>${content}</p>
+                ${imageDataUrl ? `<img src="${imageDataUrl}" alt="Post image" id="imagePreview">` : ''}
+                <p><em>Posted on: ${new Date().toLocaleString()}</em></p>
+            `;
+
+            // Clear the form
+            form.reset();
+            imageDataUrl = '';
+        });
+    </script>
+</body>
+</html>
