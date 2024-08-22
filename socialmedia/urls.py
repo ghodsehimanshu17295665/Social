@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import Home, Login, UserProfile, BlogList, ViewBlog, AddCommentView
+from .views import Home, Login, UserProfile, BlogList, ViewBlog, AddCommentView, UpdateProfile, CreatePost
 from django.conf.urls.static import static
 from django.conf import settings
 
@@ -12,4 +12,6 @@ urlpatterns = [
     path('blog/<uuid:pk>/', ViewBlog.as_view(), name='blogview'),
     path('blog/<uuid:pk>/add_comment/', AddCommentView.as_view(), name='add_comment'),
     path('profile/<uuid:pk>/', UserProfile.as_view(), name='profile'),
+    path('profile/update/', UpdateProfile.as_view(), name='update_profile'),
+    path('create/post/', CreatePost.as_view(), name='create_post'),
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
