@@ -10,14 +10,15 @@
     <h1 class="text-center mb-4">Blog Posts</h1>
     <div class="card mb-4">
       {% if post.image %}
-        <img src="{{ post.image.url }}" class="card-img-top blog-image" alt="Blog post image" />
+      <img src="{{ post.image.url }}" class="card-img-top blog-image" alt="Blog post image" />
       {% endif %}
       <div class="card-body">
         <h2 class="card-title">{{ post.title }}</h2>
         <div class="d-flex justify-content-between align-items-center mb-2">
           <div class="user-info">
-            {% comment %} <img src="https://via.placeholder.com/30" class="user-avatar" alt="User avatar" /> {% endcomment %}
-            <span class="text-muted">{{ post.user.username }}</span>
+      
+            <a href="{% url 'profile' post.user.id %}" class="btn btn-primary">{{ post.user.username }}</a>
+     
           </div>
           <small class="text-muted">{{ post.created_at|date:'F j, Y' }}</small>
         </div>
