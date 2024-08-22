@@ -80,23 +80,17 @@ class AddCommentView(TemplateView):
         return render(request, self.template_name, context=context)
 
 
-
 def sign_up(request):
     if request.user.is_authenticated:
         return redirect('/')
-    
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)  # Automatically log in the user after signup
+            form.save()
             messages.success(request, "Account created successfully! You are now logged in.")
             return redirect('/')
-        else:
-            messages.error(request, "Please correct the errors below.")
     else:
         form = SignUpForm()
-    
     return render(request, 'registration/signup.html', {'form': form})
 
 
@@ -125,8 +119,7 @@ def user_login(request):
 # Profile
 def user_profile(request):
     if request.user.is_authenticated:
-        print(request.user.id)
-        data = Profile.objects.get(user=request.user)
+        data = Profile.objects.filter(user=request.user).first()
         print(data)
         context = {
             'data': data
