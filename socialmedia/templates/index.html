@@ -1,81 +1,82 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Social Website</title>
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
 
-<head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Social Website</title>
-  <meta name="description" content="">
-  <meta name="keywords" content="">
+    <!-- Favicons -->
+    <link href="{% static 'img/favicon.png' %}" rel="icon" />
+    <link href="{% static 'img/apple-touch-icon.png' %}" rel="apple-touch-icon" />
 
-  <!-- Favicons -->
-  <link href="{% static 'img/favicon.png' %}" rel="icon">
-  <link href="{% static 'img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Jost:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet" />
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com" rel="preconnect">
-  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Jost:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <!-- Vendor CSS Files -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet" />
+    <link href="{% static 'vendor/aos/aos.css" rel="stylesheet' %}" />
+    <link href="{% static 'vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet" />
 
-  <!-- Vendor CSS Files -->
-  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-  <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
-  <link href="{% static 'vendor/aos/aos.css" rel="stylesheet' %}">
-  <link href="{% static 'vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
-  <link href="{% static 'vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
-
-  <!-- Main CSS File -->
-  <link href="{% static 'css/main.css' %}" rel="stylesheet">
-  <style>
+    <!-- Main CSS File -->
+    <link href="{% static 'css/main.css' %}" rel="stylesheet" />
+    <style>
     {% block css %}
-      
-    {% endblock %}
-  </style>
-  <!-- =======================================================
+    {% endblock css %}
+
+    </style>
+    <!--  =======================================================
   * Template Name: Arsha
   * Template URL: https://bootstrapmade.com/arsha-free-bootstrap-html-template-corporate/
   * Updated: Aug 07 2024 with Bootstrap v5.3.3
   * Author: BootstrapMade.com
   * License: https://bootstrapmade.com/license/
-  ======================================================== -->
-</head>
+  ========================================================  -->
+  </head>
 
-<body class="index-page">
+  <body class="index-page">
+    <!-- ***** Header Area Start ***** -->
+    {% include 'header.html' %}
+    <!-- ***** Header Area End ***** -->
 
-   <!-- ***** Header Area Start ***** -->
-   {% include "header.html" %}
-   <!-- ***** Header Area End ***** -->
-
-  <main class="main">
-    {% block content %}
-    <!-- Hero Section -->
-    <section id="hero" class="hero section dark-background">
-
-      <div class="container">
-        <div class="row gy-4">
-          <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center" data-aos="zoom-out">
-            <h1>Better Solutions For Your Business</h1>
-            <p>We are team of talented designers making websites with Bootstrap</p>
-            <div class="d-flex">
-              <a href="{% url 'login_signup' %}" class="btn-get-started">Login/SignUP</a>
+    <main class="main">
+      {% block content %}
+        <!-- Hero Section -->
+        <section id="hero" class="hero section dark-background">
+          <div class="container">
+            <div class="row gy-4">
+              <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center" data-aos="zoom-out">
+                <h1>Better Solutions For Your Business</h1>
+                <p>We are team of talented designers making websites with Bootstrap</p>
+                <div class="d-flex">
+                  {% if user.is_authenticated %}
+                    <a class="btn-getstarted" href="{% url 'logout' %}">Logout</a><br><br>
+                    <a class="btn-getstarted" href="{% url 'profilePage' %}">Profile</a>
+                  {% else %}
+                    <a class="btn-getstarted" href="{% url 'signup' %}">Sign Up</a>
+                    <a class="btn-getstarted" href="{% url 'login' %}">Login</a>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="zoom-out" data-aos-delay="200">
+                <img src="{% static 'img/hero-img.png' %}" class="img-fluid animated" alt="" />
+              </div>
             </div>
           </div>
-          <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="zoom-out" data-aos-delay="200">
-            <img src="{% static 'img/hero-img.png' %}" class="img-fluid animated" alt="">
-          </div>
-        </div>
-      </div>
+        </section>
+        <!-- /Hero Section -->
 
-    </section><!-- /Hero Section -->
-
-    <!-- Clients Section -->
-    <section id="clients" class="clients section light-background">
-
-      <div class="container" data-aos="zoom-in">
-
-        <div class="swiper init-swiper">
-          <script type="application/json" class="swiper-config">
+        <!-- Clients Section -->
+        <section id="clients" class="clients section light-background">
+          <div class="container" data-aos="zoom-in">
+            <div class="swiper init-swiper">
+              <script type="application/json" class="swiper-config">
             {
               "loop": true,
               "speed": 600,
@@ -112,88 +113,100 @@
               }
             }
           </script>
-          <div class="swiper-wrapper align-items-center">
-            <div class="swiper-slide"><img src="{% static 'img/clients/client-1.png' %}" class="img-fluid" alt=""></div>
-            <div class="swiper-slide"><img src="{% static 'img/clients/client-2.png' %}" class="img-fluid" alt=""></div>
-            <div class="swiper-slide"><img src="{% static 'img/clients/client-3.png' %}" class="img-fluid" alt=""></div>
-            <div class="swiper-slide"><img src="{% static 'img/clients/client-4.png' %}" class="img-fluid" alt=""></div>
-            <div class="swiper-slide"><img src="{% static 'img/clients/client-5.png' %}" class="img-fluid" alt=""></div>
-            <div class="swiper-slide"><img src="{% static 'img/clients/client-6.png' %}" class="img-fluid" alt=""></div>
-            <div class="swiper-slide"><img src="{% static 'img/clients/client-7.png' %}" class="img-fluid" alt=""></div>
-            <div class="swiper-slide"><img src="{% static 'img/clients/client-8.png' %}" class="img-fluid" alt=""></div>
+              <div class="swiper-wrapper align-items-center">
+                <div class="swiper-slide">
+                  <img src="{% static 'img/clients/client-1.png' %}" class="img-fluid" alt="" />
+                </div>
+                <div class="swiper-slide">
+                  <img src="{% static 'img/clients/client-2.png' %}" class="img-fluid" alt="" />
+                </div>
+                <div class="swiper-slide">
+                  <img src="{% static 'img/clients/client-3.png' %}" class="img-fluid" alt="" />
+                </div>
+                <div class="swiper-slide">
+                  <img src="{% static 'img/clients/client-4.png' %}" class="img-fluid" alt="" />
+                </div>
+                <div class="swiper-slide">
+                  <img src="{% static 'img/clients/client-5.png' %}" class="img-fluid" alt="" />
+                </div>
+                <div class="swiper-slide">
+                  <img src="{% static 'img/clients/client-6.png' %}" class="img-fluid" alt="" />
+                </div>
+                <div class="swiper-slide">
+                  <img src="{% static 'img/clients/client-7.png' %}" class="img-fluid" alt="" />
+                </div>
+                <div class="swiper-slide">
+                  <img src="{% static 'img/clients/client-8.png' %}" class="img-fluid" alt="" />
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
+        <!-- /Clients Section -->
 
-      </div>
-
-    </section><!-- /Clients Section -->
-
-    <!-- About Section -->
-    <section id="about" class="about section">
-
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
-        <h2>About Us</h2>
-      </div><!-- End Section Title -->
-
-      <div class="container">
-
-        <div class="row gy-4">
-
-          <div class="col-lg-6 content" data-aos="fade-up" data-aos-delay="100">
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-              magna aliqua.
-            </p>
-            <ul>
-              <li><i class="bi bi-check2-circle"></i> <span>Ullamco laboris nisi ut aliquip ex ea commodo consequat.</span></li>
-              <li><i class="bi bi-check2-circle"></i> <span>Duis aute irure dolor in reprehenderit in voluptate velit.</span></li>
-              <li><i class="bi bi-check2-circle"></i> <span>Ullamco laboris nisi ut aliquip ex ea commodo</span></li>
-            </ul>
+        <!-- About Section -->
+        <section id="about" class="about section">
+          <!-- Section Title -->
+          <div class="container section-title" data-aos="fade-up">
+            <h2>About Us</h2>
           </div>
+          <!-- End Section Title -->
 
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
-            <p>Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. </p>
-            <a href="#" class="read-more"><span>Read More</span><i class="bi bi-arrow-right"></i></a>
+          <div class="container">
+            <div class="row gy-4">
+              <div class="col-lg-6 content" data-aos="fade-up" data-aos-delay="100">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <ul>
+                  <li>
+                    <i class="bi bi-check2-circle"></i> <span>Ullamco laboris nisi ut aliquip ex ea commodo consequat.</span>
+                  </li>
+                  <li>
+                    <i class="bi bi-check2-circle"></i> <span>Duis aute irure dolor in reprehenderit in voluptate velit.</span>
+                  </li>
+                  <li>
+                    <i class="bi bi-check2-circle"></i> <span>Ullamco laboris nisi ut aliquip ex ea commodo</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
+                <p>Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <a href="#" class="read-more"><span>Read More</span><i class="bi bi-arrow-right"></i></a>
+              </div>
+            </div>
           </div>
+        </section>
+        <!-- /About Section -->
+        {% include 'footer.html' %}
+      {% endblock %}
+    </main>
 
-        </div>
+    {% block body_content %}
 
-      </div>
-
-    </section><!-- /About Section -->
-    {% include "footer.html" %}
     {% endblock %}
-  </main>
 
-  {% block body_content %}
-  {% endblock body_content %}
-  
-  <!-- ***** footer Area Start ***** -->
+    <!-- ***** footer Area Start ***** -->
 
-  <!-- ***** footer Area End ***** -->
+    <!-- ***** footer Area End ***** -->
 
+    <!-- Scroll Top -->
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
-  <!-- Scroll Top -->
-  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <!-- Preloader -->
+    <div id="preloader"></div>
 
-  <!-- Preloader -->
-  <div id="preloader"></div>
+    <!-- Vendor JS Files -->
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'vendor/php-email-form/validate.js' %}"></script>
+    <script src="{% static 'vendor/aos/aos.js' %}"></script>
+    <script src="{% static 'vendor/glightbox/js/glightbox.min.js' %}"></script>
+    <script src="{% static 'vendor/swiper/swiper-bundle.min.js' %}"></script>
+    <script src="{% static 'vendor/waypoints/noframework.waypoints.js' %}"></script>
+    <script src="{% static 'vendor/imagesloaded/imagesloaded.pkgd.min.js' %}"></script>
+    <script src="{% static 'vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
 
-  <!-- Vendor JS Files -->
-  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-  <script src="{% static 'vendor/php-email-form/validate.js' %}"></script>
-  <script src="{% static 'vendor/aos/aos.js' %}"></script>
-  <script src="{% static 'vendor/glightbox/js/glightbox.min.js' %}"></script>
-  <script src="{% static 'vendor/swiper/swiper-bundle.min.js' %}"></script>
-  <script src="{% static 'vendor/waypoints/noframework.waypoints.js' %}"></script>
-  <script src="{% static 'vendor/imagesloaded/imagesloaded.pkgd.min.js' %}"></script>
-  <script src="{% static 'vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
-
-  <!-- Main JS File -->
-  <script src="{% static 'js/main.js' %}"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-
+    <!-- Main JS File -->
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
