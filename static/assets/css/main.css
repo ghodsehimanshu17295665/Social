@@ -558,6 +558,7 @@ section,
   display: block;
   width: 100%;
   height: 100%;
+ 
   object-fit: cover;
   z-index: 1;
 }
@@ -579,11 +580,22 @@ section,
   margin: 0;
   font-size: 64px;
   font-weight: 700;
+  background: linear-gradient(180.3deg, rgb(204, 205, 211) 37.2%, rgb(254, 168, 168) 137.3%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ffffff; /* Your text color */
+  text-shadow: 
+    0px 50px 100px rgba(50, 50, 93, 0.25),
+    0px 30px 60px rgba(0, 0, 0, 0.3),
+    -2px 6px 0px rgba(10, 37, 64, 0.35);
+   
+    
 }
 
 .hero p {
   margin: 5px 0 0 0;
   font-size: 26px;
+  
 }
 
 .hero p span {
