@@ -1,0 +1,55 @@
+{% load static %}
+{% load widget_tweaks %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <!-- Display messages -->
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Login Form -->
+        <div class="form-container sign-in-container">
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                <h1>Log in</h1>
+                {{ form.non_field_errors }}
+                <div class="form-group">
+                    {{ form.username.label_tag }}<br>
+                    {{ form.username|add_class:"form-control" }}
+                </div>
+                <div class="form-group">
+                    {{ form.password.label_tag }}<br>
+                    {{ form.password|add_class:"form-control" }}
+                </div>
+                {% comment %} <a href="{% url 'password_reset' %}">Forgot your password?</a> {% endcomment %}
+                <button type="submit">Log In</button><br>
+                <button type="button" onclick="window.location.href='/'">Home</button>
+            </form>
+        </div>
+
+        <!-- Overlay Panel -->
+        <div class="overlay-panel overlay-left">
+            <h1>Welcome Back!</h1>
+            <p>To keep connected with us please login with your personal info</p>
+            <button class="ghost" id="signUp" onclick="window.location.href='{% url 'signup' %}'">Sign Up</button>
+        </div>
+    </div>
+
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>
