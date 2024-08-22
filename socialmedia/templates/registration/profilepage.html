@@ -69,8 +69,10 @@
     <nav id="navmenu" class="navmenu">
       <ul>
         <li><a href="{% url 'home_page' %}"><i class="bi bi-house navicon"></i> Home</a></li>
-        <li><a href="{% url 'blog_list' %}"><i class="bi bi-journal-text navicon"></i> Blog</a></li>
         <li><a href="#about"><i class="bi bi-person navicon"></i> About</a></li>
+        <li><a href="{% url 'blog_list' %}"><i class="bi bi-journal-text navicon"></i> Blog</a></li>
+        <li><a href="{% url "update_profile" %}"><i class="bi bi-person navicon"></i> Update Profile</a></li>
+        <li><a href="{% url "create_post" %}"><i class="bi bi-journal-text navicon"></i> Create Post</a></li>
         <li><a href="{% url "logout" %}"><i class="bi bi-person navicon"></i> LogOut</a></li>
       </ul>
     </nav>
