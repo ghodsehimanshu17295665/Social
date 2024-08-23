@@ -22,11 +22,11 @@ class Home(TemplateView):
 #         return render(request, self.template_name)
 
 
-class Login(TemplateView):
-    template_name = "registration/login.html"
+# class Login(TemplateView):
+#     template_name = "registration/login.html"
 
-    def get(self, request):
-        return render(request, self.template_name)
+#     def get(self, request):
+#         return render(request, self.template_name)
 
 
 class BlogList(TemplateView):
@@ -115,14 +115,21 @@ class LikePostView(View):
         return redirect("blogview", pk=post.id)
 
 
-def sign_up(request):
-    if request.user.is_authenticated:
-        return redirect("/")
-    if request.method == "POST":
+# SignUp View Function
+class SignUpView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('/')
+        form = SignUpForm()
+        return render(request, 'registration/signup.html', {'form': form})
+
+    def post(self, request):
+        if request.user.is_authenticated:
+            return redirect('/')
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
-            profile = Profile.objects.create(
+            Profile.objects.create(
                 user=user,
                 # profile_picture='img/default_profile_pic.jpg',
                 birth_date=None,
@@ -130,47 +137,44 @@ def sign_up(request):
                 location=None,
                 gender=None,
             )
-            print(f"Profile created: {profile}")  # Debug print
-            messages.success(
-                request, "Account created successfully! You are now logged in."
-            )
-            return redirect("/")
-    else:
-        form = SignUpForm()
-    return render(request, "registration/signup.html", {"form": form})
+            messages.success(request, "Account created successfully! You are now logged in.")
+            return redirect('/')
+        return render(request, 'registration/signup.html', {'form': form})
 
 
 # Login View Function
-def user_login(request):
-    if not request.user.is_authenticated:
-        if request.method == "POST":
-            form = AuthenticationForm(request=request, data=request.POST)
-            if form.is_valid():
-                user_name = form.cleaned_data["username"]
-                user_password = form.cleaned_data["password"]
-                user = authenticate(username=user_name, password=user_password)
-                if user is not None:
-                    login(request, user)
-                    messages.success(request, "Logged in Successfully!!")
-                    return redirect("/profile/page/")
-                else:
-                    form.add_error(None, "Invalid username or password")
-        else:
-            form = AuthenticationForm()
-        return render(request, "registration/login.html", {"form": form})
-    else:
-        return redirect("/profile/page/")
+class UserLoginView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('/profile/page/')
+        form = AuthenticationForm()
+        return render(request, 'registration/login.html', {'form': form})
+
+    def post(self, request):
+        form = AuthenticationForm(request=request, data=request.POST)
+        if form.is_valid():
+            user_name = form.cleaned_data['username']
+            user_password = form.cleaned_data['password']
+            user = authenticate(username=user_name, password=user_password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, 'Logged in Successfully!!')
+                return redirect('/profile/page/')
+            else:
+                form.add_error(None, 'Invalid username or password')
+        return render(request, 'registration/login.html', {'form': form})
 
 
 # Profile
-def user_profile(request):
-    if request.user.is_authenticated:
+class UserProfileView(View):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return redirect('/login/')
+
+        # Retrieve the user's profile
         data = Profile.objects.filter(user=request.user).first()
-        print(data)
         context = {"data": data}
         return render(request, "registration/profilepage.html", context)
-    else:
-        return redirect("/login/")
 
 
 # Logout
