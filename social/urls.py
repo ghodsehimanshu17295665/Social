@@ -17,14 +17,11 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from socialmedia import views
+# from socialmedia import views
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("signup/", views.sign_up, name="signup"),
-    path("login/", views.user_login, name="login"),
-    path("profile/page/", views.user_profile, name="profilePage"),
-    # path('logout/', views.user_logout, name='logout'),
+    # path("signup/", views.sign_up, name="signup"),
     path("", include("socialmedia.urls")),
 ]
