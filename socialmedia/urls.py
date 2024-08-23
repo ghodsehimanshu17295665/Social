@@ -1,18 +1,36 @@
 from django.urls import path
-from .views import Home, Login, UserProfile, BlogList, ViewBlog, AddCommentView, UpdateProfile, CreatePost, PostDetailView
+from .views import (
+    Home,
+    Login,
+    UserProfile,
+    BlogList,
+    ViewBlog,
+    AddCommentView,
+    UpdateProfile,
+    CreatePost,
+    PostDetailView,
+    LogoutView,
+    LikePostView,
+)
 from django.conf.urls.static import static
 from django.conf import settings
 
 
 urlpatterns = [
-    path('', Home.as_view(), name='home_page'),
-    path('login/', Login.as_view(), name='login'),
+    path("", Home.as_view(), name="home_page"),
+    path("login/", Login.as_view(), name="login"),
     # path('signup/', Signup.as_view(), name='signup'),
-    path('blog/list/', BlogList.as_view(), name='blog_list'),
-    path('blog/<uuid:pk>/', ViewBlog.as_view(), name='blogview'),
-    path('blog/<uuid:pk>/add_comment/', AddCommentView.as_view(), name='add_comment'),
-    path('profile/<uuid:pk>/', UserProfile.as_view(), name='profile'),
-    path('profile/update/', UpdateProfile.as_view(), name='update_profile'),
-    path('create/post/', CreatePost.as_view(), name='create_post'),
-    path('post/<uuid:pk>/', PostDetailView.as_view(), name='post_detail'),
-]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path("blog/list/", BlogList.as_view(), name="blog_list"),
+    path("blog/<uuid:pk>/", ViewBlog.as_view(), name="blogview"),
+    path(
+        "blog/<uuid:pk>/add_comment/",
+        AddCommentView.as_view(),
+        name="add_comment",
+    ),
+    path("profile/<uuid:pk>/", UserProfile.as_view(), name="profile"),
+    path("profile/update/", UpdateProfile.as_view(), name="update_profile"),
+    path("create/post/", CreatePost.as_view(), name="create_post"),
+    path("post/<uuid:pk>/", PostDetailView.as_view(), name="post_detail"),
+    path("logout/", LogoutView.as_view(), name="logout"),
+    path("post/<uuid:pk>/like/", LikePostView.as_view(), name="like_post"),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
