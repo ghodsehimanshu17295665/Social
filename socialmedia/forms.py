@@ -1,8 +1,8 @@
 from django import forms
-from socialmedia.models import Post
+# from socialmedia.models import Post
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 # from django.contrib.auth.models import User
-from .models import User, Profile, Post
+from .models import User, Profile, Post, Comment
 
 
 class PostForm(forms.ModelForm):
@@ -11,14 +11,12 @@ class PostForm(forms.ModelForm):
         fields = ["title", "content", "image"]
 
 
-# class SignUpForm(UserCreationForm):
-#     email = forms.EmailField(required=True)
-#     first_name = forms.CharField(required=True)
-#     last_name = forms.CharField(required=True)
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["comment"]
 
-#     class Meta:
-#         model = User
-#         fields = ['username', 'email', 'firstname', 'lastname', 'password1', 'password2']
+
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(required=True)
 
