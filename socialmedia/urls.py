@@ -1,7 +1,6 @@
 from django.urls import path
 from .views import (
     Home,
-    Login,
     UserProfile,
     BlogList,
     ViewBlog,
@@ -11,6 +10,9 @@ from .views import (
     PostDetailView,
     LogoutView,
     LikePostView,
+    UserProfileView,
+    UserLoginView,
+    SignUpView,
 )
 from django.conf.urls.static import static
 from django.conf import settings
@@ -18,8 +20,6 @@ from django.conf import settings
 
 urlpatterns = [
     path("", Home.as_view(), name="home_page"),
-    path("login/", Login.as_view(), name="login"),
-    # path('signup/', Signup.as_view(), name='signup'),
     path("blog/list/", BlogList.as_view(), name="blog_list"),
     path("blog/<uuid:pk>/", ViewBlog.as_view(), name="blogview"),
     path(
@@ -33,4 +33,7 @@ urlpatterns = [
     path("post/<uuid:pk>/", PostDetailView.as_view(), name="post_detail"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("post/<uuid:pk>/like/", LikePostView.as_view(), name="like_post"),
+    path('signup/', SignUpView.as_view(), name='signup'),
+    path('login/', UserLoginView.as_view(), name='login'),
+    path('profile/page/', UserProfileView.as_view(), name='profilePage'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
