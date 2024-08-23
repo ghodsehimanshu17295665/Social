@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
+from django.views.generic import DetailView
 from django.contrib import messages
 from .models import Profile, Post, Comment
 from .forms import SignUpForm, ProfileUpdateForm, PostForm
@@ -180,7 +181,14 @@ class CreatePost(TemplateView):
             post.user = request.user
             post.save()
             messages.success(request, 'Your post has been created successfully!')
-            return redirect('/profile/page/')
+            # Redirect to the page where you want to display the post after it's created
+            return redirect('post_detail', pk=post.pk)
         else:
             messages.error(request, 'Please correct the errors below.')
         return render(request, self.template_name, {'form': form})
+
+
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'registration/post_detail.html'
+    context_object_name = 'post'
