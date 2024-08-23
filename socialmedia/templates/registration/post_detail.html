@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Detail</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #093982 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+        #preview {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 100%;
+            max-width: 600px;
+            display: none;
+        }
+        #imagePreview {
+            max-width: 100%;
+            margin-top: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ post.title }}</h1>
+        {% if post.image %}
+      <img src="{{ post.image.url }}" class="card-img-top blog-image" alt="Blog post image" />
+      {% endif %}
+        <p>{{ post.content }}</p>
+        <p><strong>Posted by:</strong> {{ post.user.username }}</p>
+        <a href="{% url 'profilePage' %}"><button type="button">Back To Profile</button></a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const previewButton = document.getElementById('previewButton');
+            const preview = document.getElementById('preview');
+            const previewTitle = document.getElementById('previewTitle');
+            const previewContent = document.getElementById('previewContent');
+            const imagePreview = document.getElementById('imagePreview');
+            
+            // Preview button functionality
+            previewButton.addEventListener('click', function() {
+                const title = document.getElementById('id_title').value;
+                const content = document.getElementById('id_content').value;
+                const imageSrc = imagePreview.src;
+
+                previewTitle.textContent = title;
+                previewContent.textContent = content;
+
+                if (imageSrc) {
+                    imagePreview.src = imageSrc;
+                    imagePreview.style.display = 'block';
+                } else {
+                    imagePreview.style.display = 'none';
+                }
+
+                preview.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Detail</title>
+</head>
+<body>
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.content }}</p>
+    <p><strong>Posted by:</strong> {{ post.user.username }}</p>
+</body>
+</html> {% endcomment %}
