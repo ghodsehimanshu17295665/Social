@@ -22,9 +22,9 @@ from socialmedia import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('signup/', views.sign_up, name='signup'),
-    path('login/', views.user_login, name='login'),
-    path('profile/page/', views.user_profile, name='profilePage'),
-    path('logout/', views.user_logout, name='logout'),
-    path("", include('socialmedia.urls')),
+    path("signup/", views.sign_up, name="signup"),
+    path("login/", views.user_login, name="login"),
+    path("profile/page/", views.user_profile, name="profilePage"),
+    # path('logout/', views.user_logout, name='logout'),
+    path("", include("socialmedia.urls")),
 ]
