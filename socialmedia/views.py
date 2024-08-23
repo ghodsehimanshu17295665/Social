@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 from django.views.generic import DetailView
 from django.contrib import messages
-from .models import Profile, Post, Comment
-from .forms import SignUpForm, ProfileUpdateForm, PostForm
+from .models import Profile, Post, Comment, Like
+from .forms import SignUpForm, ProfileUpdateForm, PostForm, CommentForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
 
@@ -34,12 +34,10 @@ class BlogList(TemplateView):
 
     def get(self, request):
         if not request.user.is_authenticated:
-            return redirect('/login/')
+            return redirect("/login/")
 
         posts = Post.objects.all()
-        context = {
-            "posts": posts
-        }
+        context = {"posts": posts}
         return render(request, self.template_name, context=context)
 
 
@@ -69,22 +67,58 @@ class UserProfile(TemplateView):
 
 
 class AddCommentView(TemplateView):
-    template_name = "user/blog.html"
+    template_name = "user/Viewblog.html"
 
     def get(self, request, pk):
         post = Post.objects.filter(id=pk).first()
         comments = Comment.objects.filter(post=post)
-        print(comments)
-        context = {
-            "comments": comments
-        }
+        form = CommentForm()
+        context = {"post": post, "comments": comments, "form": form}
         return render(request, self.template_name, context=context)
+
+    def post(self, request, pk):
+        post = Post.objects.filter(id=pk).first()
+        form = CommentForm(request.POST)
+
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.user = request.user
+            comment.save()
+            return redirect("add_comment", pk=pk)
+
+        comments = Comment.objects.filter(post=post)
+        context = {"post": post, "comments": comments, "form": form}
+        return render(request, self.template_name, context)
+
+
+class LikePostView(View):
+    def post(self, request, pk):
+        # Use .get() to retrieve the post
+        post = Post.objects.filter(id=pk).first()
+
+        if post is None:
+            # Handle the case where the post doesn't exist
+            return redirect(
+                "home_page"
+            )  # Redirect to the homepage or any other appropriate page
+
+        # Use get_or_create to handle like/unlike logic
+        like, created = Like.objects.get_or_create(
+            user=request.user, post=post
+        )
+
+        if not created:
+            # If the like already exists, delete it (unlike action)
+            like.delete()
+
+        return redirect("blogview", pk=post.id)
 
 
 def sign_up(request):
     if request.user.is_authenticated:
-        return redirect('/')
-    if request.method == 'POST':
+        return redirect("/")
+    if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
@@ -94,36 +128,38 @@ def sign_up(request):
                 birth_date=None,
                 bio=None,
                 location=None,
-                gender=None
+                gender=None,
             )
-            print(f'Profile created: {profile}')  # Debug print
-            messages.success(request, "Account created successfully! You are now logged in.")
-            return redirect('/')
+            print(f"Profile created: {profile}")  # Debug print
+            messages.success(
+                request, "Account created successfully! You are now logged in."
+            )
+            return redirect("/")
     else:
         form = SignUpForm()
-    return render(request, 'registration/signup.html', {'form': form})
+    return render(request, "registration/signup.html", {"form": form})
 
 
 # Login View Function
 def user_login(request):
     if not request.user.is_authenticated:
-        if request.method == 'POST':
+        if request.method == "POST":
             form = AuthenticationForm(request=request, data=request.POST)
             if form.is_valid():
-                user_name = form.cleaned_data['username']
-                user_password = form.cleaned_data['password']
+                user_name = form.cleaned_data["username"]
+                user_password = form.cleaned_data["password"]
                 user = authenticate(username=user_name, password=user_password)
                 if user is not None:
                     login(request, user)
-                    messages.success(request, 'Logged in Successfully!!')
-                    return redirect('/profile/page/')
+                    messages.success(request, "Logged in Successfully!!")
+                    return redirect("/profile/page/")
                 else:
-                    form.add_error(None, 'Invalid username or password')
+                    form.add_error(None, "Invalid username or password")
         else:
             form = AuthenticationForm()
-        return render(request, 'registration/login.html', {'form': form})
+        return render(request, "registration/login.html", {"form": form})
     else:
-        return redirect('/profile/page/')
+        return redirect("/profile/page/")
 
 
 # Profile
@@ -131,39 +167,45 @@ def user_profile(request):
     if request.user.is_authenticated:
         data = Profile.objects.filter(user=request.user).first()
         print(data)
-        context = {
-            'data': data
-        }
-        return render(request, 'registration/profilepage.html', context)
+        context = {"data": data}
+        return render(request, "registration/profilepage.html", context)
     else:
-        return redirect('/login/')
+        return redirect("/login/")
 
 
 # Logout
-def user_logout(request):
-    logout(request)
-    return redirect('/')
+class LogoutView(View):
+    template_name = "registration/logout_confirmation.html"
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        logout(request)
+        return redirect("/")
 
 
 # Update Profile Page:-
 class UpdateProfile(TemplateView):
-    template_name = 'registration/updateprofile.html'
+    template_name = "registration/updateprofile.html"
 
     def get(self, request):
         profile = Profile.objects.get(user=request.user)
         form = ProfileUpdateForm(instance=profile)
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {"form": form})
 
     def post(self, request):
         profile = Profile.objects.get(user=request.user)
         form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Your profile has been updated successfully!')
-            return redirect('/profile/page/')
+            messages.success(
+                request, "Your profile has been updated successfully!"
+            )
+            return redirect("/profile/page/")
         else:
-            messages.error(request, 'Please correct the errors below.')
-        return render(request, self.template_name, {'form': form})
+            messages.error(request, "Please correct the errors below.")
+        return render(request, self.template_name, {"form": form})
 
 
 # Create Blog:-
@@ -172,7 +214,7 @@ class CreatePost(TemplateView):
 
     def get(self, request):
         form = PostForm()
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {"form": form})
 
     def post(self, request):
         form = PostForm(request.POST, request.FILES)
@@ -180,15 +222,16 @@ class CreatePost(TemplateView):
             post = form.save(commit=False)
             post.user = request.user
             post.save()
-            messages.success(request, 'Your post has been created successfully!')
-            # Redirect to the page where you want to display the post after it's created
-            return redirect('post_detail', pk=post.pk)
+            messages.success(
+                request, "Your post has been created successfully!"
+            )
+            return redirect("post_detail", pk=post.pk)
         else:
-            messages.error(request, 'Please correct the errors below.')
-        return render(request, self.template_name, {'form': form})
+            messages.error(request, "Please correct the errors below.")
+        return render(request, self.template_name, {"form": form})
 
 
 class PostDetailView(DetailView):
     model = Post
-    template_name = 'registration/post_detail.html'
-    context_object_name = 'post'
+    template_name = "registration/post_detail.html"
+    context_object_name = "post"
