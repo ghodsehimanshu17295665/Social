@@ -2,10 +2,13 @@ from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, View
 from django.views.generic import DetailView
 from django.contrib import messages
-from .models import Profile, Post, Comment, Like
-from .forms import SignUpForm, ProfileUpdateForm, PostForm, CommentForm
+from .models import Profile, Post, Comment, Like, Follow, User
+from .forms import SignUpForm, ProfileUpdateForm, PostForm, CommentForm, UpdateBlog
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
+
+# from django.contrib.auth.models import User
+from .email_utils import send_simple_email
 
 
 class Home(TemplateView):
@@ -13,106 +16,6 @@ class Home(TemplateView):
 
     def get(self, request):
         return render(request, self.template_name)
-
-
-# class Signup(TemplateView):
-#     template_name = "registration/signup.html"
-
-#     def get(self, request):
-#         return render(request, self.template_name)
-
-
-# class Login(TemplateView):
-#     template_name = "registration/login.html"
-
-#     def get(self, request):
-#         return render(request, self.template_name)
-
-
-class BlogList(TemplateView):
-    template_name = "user/blog_list.html"
-
-    def get(self, request):
-        if not request.user.is_authenticated:
-            return redirect("/login/")
-
-        posts = Post.objects.all()
-        context = {"posts": posts}
-        return render(request, self.template_name, context=context)
-
-
-class ViewBlog(TemplateView):
-    template_name = "user/Viewblog.html"
-
-    def get(self, request, pk):
-        post = Post.objects.get(id=pk)
-
-        comments = Comment.objects.filter(post=post)
-        context = {
-            "post": post,
-            "comments": comments,
-        }
-        return render(request, self.template_name, context=context)
-
-
-class UserProfile(TemplateView):
-    template_name = "user/profile.html"
-
-    def get(self, request, pk):
-        data = Profile.objects.filter(user=pk).first()
-        context = {
-            "data": data,
-        }
-        return render(request, self.template_name, context)
-
-
-class AddCommentView(TemplateView):
-    template_name = "user/Viewblog.html"
-
-    def get(self, request, pk):
-        post = Post.objects.filter(id=pk).first()
-        comments = Comment.objects.filter(post=post)
-        form = CommentForm()
-        context = {"post": post, "comments": comments, "form": form}
-        return render(request, self.template_name, context=context)
-
-    def post(self, request, pk):
-        post = Post.objects.filter(id=pk).first()
-        form = CommentForm(request.POST)
-
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.post = post
-            comment.user = request.user
-            comment.save()
-            return redirect("add_comment", pk=pk)
-
-        comments = Comment.objects.filter(post=post)
-        context = {"post": post, "comments": comments, "form": form}
-        return render(request, self.template_name, context)
-
-
-class LikePostView(View):
-    def post(self, request, pk):
-        # Use .get() to retrieve the post
-        post = Post.objects.filter(id=pk).first()
-
-        if post is None:
-            # Handle the case where the post doesn't exist
-            return redirect(
-                "home_page"
-            )  # Redirect to the homepage or any other appropriate page
-
-        # Use get_or_create to handle like/unlike logic
-        like, created = Like.objects.get_or_create(
-            user=request.user, post=post
-        )
-
-        if not created:
-            # If the like already exists, delete it (unlike action)
-            like.delete()
-
-        return redirect("blogview", pk=post.id)
 
 
 # SignUp View Function
@@ -131,14 +34,14 @@ class SignUpView(View):
             user = form.save()
             Profile.objects.create(
                 user=user,
-                # profile_picture='img/default_profile_pic.jpg',
                 birth_date=None,
                 bio=None,
                 location=None,
                 gender=None,
             )
+            send_simple_email(user)
             messages.success(request, "Account created successfully! You are now logged in.")
-            return redirect('/')
+            return redirect('login')
         return render(request, 'registration/signup.html', {'form': form})
 
 
@@ -165,18 +68,6 @@ class UserLoginView(View):
         return render(request, 'registration/login.html', {'form': form})
 
 
-# Profile
-class UserProfileView(View):
-    def get(self, request):
-        if not request.user.is_authenticated:
-            return redirect('/login/')
-
-        # Retrieve the user's profile
-        data = Profile.objects.filter(user=request.user).first()
-        context = {"data": data}
-        return render(request, "registration/profilepage.html", context)
-
-
 # Logout
 class LogoutView(View):
     template_name = "registration/logout_confirmation.html"
@@ -187,6 +78,17 @@ class LogoutView(View):
     def post(self, request):
         logout(request)
         return redirect("/")
+
+
+# Profile
+class UserProfileView(View):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return redirect('/login/')
+
+        data = Profile.objects.filter(user=request.user).first()
+        context = {"data": data}
+        return render(request, "registration/profilepage.html", context)
 
 
 # Update Profile Page:-
@@ -239,3 +141,143 @@ class PostDetailView(DetailView):
     model = Post
     template_name = "registration/post_detail.html"
     context_object_name = "post"
+
+
+# Update Blog:-
+class Updateblog(TemplateView):
+    template_name = "registration/blogupdate.html"
+
+    def get(self, request, pk):
+        post = Post.objects.filter(id=pk).first()
+        if post:
+            form = UpdateBlog(instance=post)
+            return render(request, self.template_name, {'form': form})
+
+    def post(self, request, pk):
+        post = Post.objects.filter(id=pk).first()
+        if post:
+            form = UpdateBlog(request.POST, instance=post)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Blog updated successfully.")
+                return render(request, self.template_name, {'form': form})
+
+
+# List User Blog:-
+class Myblog(TemplateView):
+    template_name = "user/myblog.html"
+
+    def get(self, request):
+        posts = Post.objects.filter(user=request.user)
+        context = {"posts": posts}
+        return render(request, self.template_name, context=context)
+
+
+# List All Blog.
+class BlogList(TemplateView):
+    template_name = "user/blog_list.html"
+
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return redirect("/login/")
+
+        posts = Post.objects.all()
+        context = {"posts": posts}
+        return render(request, self.template_name, context=context)
+
+
+# View Blog:-
+class ViewBlog(TemplateView):
+    template_name = "user/Viewblog.html"
+
+    def get(self, request, pk):
+        post = Post.objects.filter(pk=pk).first()
+
+        comments = Comment.objects.filter(post=post)
+        context = {
+            "post": post,
+            "comments": comments,
+        }
+        return render(request, self.template_name, context=context)
+
+
+class UserProfile(TemplateView):
+    template_name = "user/profile.html"
+
+    def get(self, request, pk):
+        user = User.objects.filter(id=pk).first()
+        data = Profile.objects.filter(user=user).first()
+        context = {
+            "data": data,
+        }
+        return render(request, self.template_name, context)
+
+
+# Add Comment in Blog:-
+class AddCommentView(TemplateView):
+    template_name = "user/Viewblog.html"
+
+    def get(self, request, pk):
+        post = Post.objects.filter(id=pk).first()
+        comments = Comment.objects.filter(post=post)
+        form = CommentForm()
+        context = {"post": post, "comments": comments, "form": form}
+        return render(request, self.template_name, context=context)
+
+    def post(self, request, pk):
+        post = Post.objects.filter(id=pk).first()
+        form = CommentForm(request.POST)
+
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.user = request.user
+            comment.save()
+            return redirect("add_comment", pk=pk)
+
+        comments = Comment.objects.filter(post=post)
+        context = {"post": post, "comments": comments, "form": form}
+        return render(request, self.template_name, context)
+
+
+# Add Like:-
+class LikePostView(View):
+    def post(self, request, pk):
+        post = Post.objects.filter(id=pk).first()
+
+        if post is None:
+            return redirect(
+                "home_page"
+            )
+        like, created = Like.objects.get_or_create(
+            user=request.user, post=post
+        )
+
+        if not created:
+            like.delete()
+
+        return redirect("blogview", pk=post.id)
+
+
+# Follow:-
+class FollowUserView(View):
+    def post(self, request, pk):
+        user_to_follow = User.objects.filter(pk=pk).first()
+
+        if not user_to_follow:
+            return redirect("home_page")
+
+        follow, created = Follow.objects.get_or_create(
+            user=request.user, user_following=user_to_follow
+        )
+
+        if not created:
+            follow.delete()
+
+        return redirect("home_page")
+
+# subject = 'welcome to GFG world'
+# message = f'Hi {user.username}, thank you for registering in geeksforgeeks.'
+# email_from = settings.EMAIL_HOST_USER
+# recipient_list = [user.email, ]
+# send_mail( subject, message, email_from, recipient_list )
