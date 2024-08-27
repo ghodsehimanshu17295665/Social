@@ -16,7 +16,11 @@
         <h2 class="card-title">{{ post.title }}</h2>
         <div class="d-flex justify-content-between align-items-center mb-2">
           <div class="user-info">
+            {% if request.user != post.user %}
             <a href="{% url 'profile' post.user.id %}" class="btn btn-primary">{{ post.user.username }}</a>
+            {% else %}
+            <a href="{% url 'profilePage' %}" class="btn btn-primary">{{ post.user.username }}</a>
+            {% endif %}
           </div>
           <small class="text-muted">{{ post.created_at|date:'F j, Y' }}</small>
         </div>
@@ -35,6 +39,7 @@
                   {% endif %}
                 </button>
               </form>
+
               <span class="likes-count">{{ post.post_likes.count }} likes</span>
             </div>
           </div>
