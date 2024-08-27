@@ -15,7 +15,10 @@ class TimeStampedModel(models.Model):
 
 class User(AbstractUser, TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True)  # Ensure email is unique
+    email_verified = models.BooleanField(default=False)
+    verification_token = models.CharField(max_length=100, blank=True, null=True)
+    token_created_at = models.DateTimeField(blank=True, null=True)
 
     objects = CustomUserManager()
 
@@ -24,6 +27,16 @@ class User(AbstractUser, TimeStampedModel):
 
     def __str__(self):
         return self.email
+
+    def generate_verification_token(self):
+        self.verification_token = str(uuid.uuid4())
+        self.token_created_at = timezone.now()
+        self.save()
+
+    def is_token_valid(self):
+        if self.token_created_at:
+            return (timezone.now() - self.token_created_at) < timezone.timedelta(hours=24)
+        return False
 
 
 class Profile(TimeStampedModel):
