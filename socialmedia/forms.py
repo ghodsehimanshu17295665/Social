@@ -18,7 +18,7 @@ class CommentForm(forms.ModelForm):
 
 
 class SignUpForm(UserCreationForm):
-    email = forms.EmailField(required=True)
+    # email = forms.EmailField(required=True)
 
     class Meta:
         model = User
@@ -47,3 +47,9 @@ class ProfileUpdateForm(forms.ModelForm):
             'birth_date': forms.DateInput(attrs={'type': 'date'}),
             'bio': forms.Textarea(attrs={'rows': 4}),
         }
+
+
+class UpdateBlog(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'content', 'image']
