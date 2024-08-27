@@ -1,0 +1,125 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block css %}
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #093982 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+        }
+        /* Navbar styles */
+        .navbar {
+            background-color: #333333; /* Light black */
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 1px solid white;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .navbar a:hover {
+            background-color: #555555; /* Slightly lighter black */
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #333333; /* Light black */
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .view-button {
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .view-button:hover {
+            background-color: #005f7f;
+        }
+{% endblock %}
+    
+    
+{% block content %}
+<br><br><br><br>
+    <h1>Blog List</h1>
+    <table id="blogTable">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Username</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+            <tr>
+                <td>{{ post.title }}</td>
+                <td>{{ post.user.username }}</td>
+                <td>
+                    <a class="btn btn-warning" href="{% url 'blogview' post.id %}">View</a>
+                    <a class="btn btn-primary" href="{% url 'update_blog' post.id %}">Update</a>
+                  </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const table = document.getElementById('blogTable');
+            const viewButtons = table.getElementsByClassName('view-button');
+
+            for (let i = 0; i < viewButtons.length; i++) {
+                viewButtons[i].addEventListener('click', function() {
+                    const row = this.closest('tr');
+                    const title = row.cells[0].textContent;
+                    const username = row.cells[1].textContent;
+                    alert(`You're viewing the blog post: "${title}" by ${username}`);
+                });
+            }
+
+            table.addEventListener('mouseover', function(e) {
+                if (e.target.tagName === 'TD') {
+                    e.target.parentElement.style.transform = 'scale(1.02)';
+                    e.target.parentElement.style.transition = 'transform 0.3s';
+                }
+            });
+
+            table.addEventListener('mouseout', function(e) {
+                if (e.target.tagName === 'TD') {
+                    e.target.parentElement.style.transform = 'scale(1)';
+                }
+            });
+        });
+    </script>
+{% endblock %}
