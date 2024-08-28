@@ -3,12 +3,17 @@ from django.views.generic import TemplateView, View
 from django.views.generic import DetailView
 from django.contrib import messages
 from .models import Profile, Post, Comment, Like, Follow, User
-from .forms import SignUpForm, ProfileUpdateForm, PostForm, CommentForm, UpdateBlog
+from .forms import (
+    SignUpForm,
+    ProfileUpdateForm,
+    PostForm,
+    CommentForm,
+    UpdateBlog,
+)
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
 
-# from django.contrib.auth.models import User
-from .email_utils import send_simple_email
+from .email_utils import send_verification_email
 
 
 class Home(TemplateView):
@@ -22,13 +27,13 @@ class Home(TemplateView):
 class SignUpView(View):
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('/')
+            return redirect("/")
         form = SignUpForm()
-        return render(request, 'registration/signup.html', {'form': form})
+        return render(request, "registration/signup.html", {"form": form})
 
     def post(self, request):
         if request.user.is_authenticated:
-            return redirect('/')
+            return redirect("/")
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
@@ -39,33 +44,76 @@ class SignUpView(View):
                 location=None,
                 gender=None,
             )
-            send_simple_email(user)
-            messages.success(request, "Account created successfully! You are now logged in.")
-            return redirect('login')
-        return render(request, 'registration/signup.html', {'form': form})
+            send_verification_email(user, request)
+            messages.success(
+                request, "Account created successfully! You are now logged in."
+            )
+            return redirect("login")
+        return render(request, "registration/signup.html", {"form": form})
 
 
 # Login View Function
 class UserLoginView(View):
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('/profile/page/')
+            return redirect("/profile/page/")
         form = AuthenticationForm()
-        return render(request, 'registration/login.html', {'form': form})
+        return render(request, "registration/login.html", {"form": form})
 
     def post(self, request):
         form = AuthenticationForm(request=request, data=request.POST)
         if form.is_valid():
-            user_name = form.cleaned_data['username']
-            user_password = form.cleaned_data['password']
+            user_name = form.cleaned_data["username"]
+            user_password = form.cleaned_data["password"]
             user = authenticate(username=user_name, password=user_password)
             if user is not None:
-                login(request, user)
-                messages.success(request, 'Logged in Successfully!!')
-                return redirect('/profile/page/')
+                if not user.email_verified:
+                    if user.is_token_valid():
+                        login(request, user)
+                        messages.success(request, "Logged in Successfully!!")
+                        return redirect("/profile/page/")
+                    else:
+                        user.generate_verification_token()
+                        send_verification_email(user, request)
+                        messages.error(
+                            request,
+                            "your email verification link has expire. A new verification link has been sent to your email.",
+                        )
+                        return redirect("login")
+                else:
+                    login(request, user)
+                    return redirect("/profile/page/")
             else:
-                form.add_error(None, 'Invalid username or password')
-        return render(request, 'registration/login.html', {'form': form})
+                form.add_error(None, "Invalid username or password")
+        return render(request, "registration/login.html", {"form": form})
+
+
+# Activate Account View
+class ActivateAccountView(View):
+    def get(self, request, uid, token):
+        user = User.objects.filter(id=uid, verification_token=token).first()
+
+        if user and user.is_token_valid():
+            user.email_verified = True
+            user.verification_token = None
+            user.token_created_at = None
+            user.save()
+            messages.success(
+                request,
+                "Thank you for verifying your email. You can now log in.",
+            )
+            return redirect("login")
+        elif user:
+            user.generate_verification_token()
+            send_verification_email(user, request)
+            messages.error(
+                request,
+                "Your email verification link has expired. A new verification link has been sent to your email.",
+            )
+            return redirect("login")
+        else:
+            messages.error(request, "Invalid verification link.")
+            return redirect("login")
 
 
 # Logout
@@ -84,7 +132,7 @@ class LogoutView(View):
 class UserProfileView(View):
     def get(self, request):
         if not request.user.is_authenticated:
-            return redirect('/login/')
+            return redirect("/login/")
 
         data = Profile.objects.filter(user=request.user).first()
         context = {"data": data}
@@ -151,7 +199,7 @@ class Updateblog(TemplateView):
         post = Post.objects.filter(id=pk).first()
         if post:
             form = UpdateBlog(instance=post)
-            return render(request, self.template_name, {'form': form})
+            return render(request, self.template_name, {"form": form})
 
     def post(self, request, pk):
         post = Post.objects.filter(id=pk).first()
@@ -160,7 +208,7 @@ class Updateblog(TemplateView):
             if form.is_valid():
                 form.save()
                 messages.success(request, "Blog updated successfully.")
-                return render(request, self.template_name, {'form': form})
+                return render(request, self.template_name, {"form": form})
 
 
 # List User Blog:-
@@ -246,9 +294,7 @@ class LikePostView(View):
         post = Post.objects.filter(id=pk).first()
 
         if post is None:
-            return redirect(
-                "home_page"
-            )
+            return redirect("home_page")
         like, created = Like.objects.get_or_create(
             user=request.user, post=post
         )
@@ -275,9 +321,3 @@ class FollowUserView(View):
             follow.delete()
 
         return redirect("home_page")
-
-# subject = 'welcome to GFG world'
-# message = f'Hi {user.username}, thank you for registering in geeksforgeeks.'
-# email_from = settings.EMAIL_HOST_USER
-# recipient_list = [user.email, ]
-# send_mail( subject, message, email_from, recipient_list )
