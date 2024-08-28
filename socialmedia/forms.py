@@ -44,8 +44,30 @@ class ProfileUpdateForm(forms.ModelForm):
         model = Profile
         fields = ['profile_picture', 'birth_date', 'bio', 'location', 'gender']
         widgets = {
-            'birth_date': forms.DateInput(attrs={'type': 'date'}),
-            'bio': forms.Textarea(attrs={'rows': 4}),
+            'profile_picture': forms.ClearableFileInput(attrs={
+                'class': 'form-control-file',
+                'style': 'max-width: 100%;'
+            }),
+            'birth_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+                'style': 'max-width: 100%;'
+            }),
+            'bio': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Tell us something about yourself...',
+                'style': 'max-width: 100%;'
+            }),
+            'location': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your location',
+                'style': 'max-width: 100%;'
+            }),
+            'gender': forms.Select(attrs={
+                'class': 'form-control',
+                'style': 'max-width: 100%;'
+            }),
         }
 
 
@@ -53,3 +75,48 @@ class UpdateBlog(forms.ModelForm):
     class Meta:
         model = Post
         fields = ['title', 'content', 'image']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter the title',
+                'style': 'max-width: 100%;'
+            }),
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Write your content here...',
+                'rows': 5,
+                'style': 'max-width: 100%;'
+            }),
+            'image': forms.ClearableFileInput(attrs={
+                'class': 'form-control-file',
+                'style': 'max-width: 100%;'
+            }),
+        }
+
+
+# class ChangePasswordForm(forms.Form):
+#     old_password = forms.CharField(widget=forms.PasswordInput())
+#     new_password = forms.CharField(widget=forms.PasswordInput())
+#     confirm_password = forms.CharField(widget=forms.PasswordInput())
+class ChangePasswordForm(forms.Form):
+    old_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter old password',
+            'style': 'max-width: 100%;'
+        })
+    )
+    new_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter new password',
+            'style': 'max-width: 100%;'
+        })
+    )
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Confirm new password',
+            'style': 'max-width: 100%;'
+        })
+    )
