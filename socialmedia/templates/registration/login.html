@@ -36,7 +36,7 @@
                     {{ form.password.label_tag }}<br>
                     {{ form.password|add_class:"form-control" }}
                 </div>
-                {% comment %} <a href="{% url 'password_reset' %}">Forgot your password?</a> {% endcomment %}
+                <a href="{% url 'password_reset' %}">Forgot your password?</a>
                 <button type="submit">Log In</button><br>
                 <button type="button" onclick="window.location.href='/'">Home</button>
             </form>
