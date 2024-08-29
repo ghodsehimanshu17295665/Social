@@ -17,7 +17,9 @@ class User(AbstractUser, TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)  # Ensure email is unique
     email_verified = models.BooleanField(default=False)
-    verification_token = models.CharField(max_length=100, blank=True, null=True)
+    verification_token = models.CharField(
+        max_length=100, blank=True, null=True
+    )
     token_created_at = models.DateTimeField(blank=True, null=True)
 
     objects = CustomUserManager()
@@ -35,7 +37,9 @@ class User(AbstractUser, TimeStampedModel):
 
     def is_token_valid(self):
         if self.token_created_at:
-            return (timezone.now() - self.token_created_at) < timezone.timedelta(hours=24)
+            return (
+                timezone.now() - self.token_created_at
+            ) < timezone.timedelta(hours=24)
         return False
 
 
@@ -49,7 +53,8 @@ class Profile(TimeStampedModel):
         User, on_delete=models.CASCADE, related_name="profile"
     )
     profile_picture = models.ImageField(
-        upload_to="profile_pics/", default='profile_pics/default_profile_pic.jpg'
+        upload_to="profile_pics/",
+        default="profile_pics/default_profile_pic.jpg",
     )
     birth_date = models.DateField(null=True, blank=True)
     bio = models.TextField(blank=True, null=True)
