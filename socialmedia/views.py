@@ -8,8 +8,13 @@ from django.urls import reverse_lazy
 from django.views.generic import DetailView, TemplateView, View
 
 from .email_utils import send_verification_email
-from .forms import (CommentForm, PostForm, ProfileUpdateForm, SignUpForm,
-                    UpdateBlog)
+from .forms import (
+    CommentForm,
+    PostForm,
+    ProfileUpdateForm,
+    SignUpForm,
+    UpdateBlog,
+)
 from .models import Comment, Follow, Like, Post, Profile, User
 
 
@@ -150,7 +155,9 @@ class UpdateProfile(TemplateView):
         form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-            messages.success(request, "Your profile has been updated successfully!")
+            messages.success(
+                request, "Your profile has been updated successfully!"
+            )
             return redirect("/profile/page/")
         else:
             messages.error(request, "Please correct the errors below.")
@@ -171,7 +178,9 @@ class CreatePost(TemplateView):
             post = form.save(commit=False)
             post.user = request.user
             post.save()
-            messages.success(request, "Your post has been created successfully!")
+            messages.success(
+                request, "Your post has been created successfully!"
+            )
             return redirect("post_detail", pk=post.pk)
         else:
             messages.error(request, "Please correct the errors below.")
@@ -288,7 +297,9 @@ class LikePostView(View):
 
         if post is None:
             return redirect("home_page")
-        like, created = Like.objects.get_or_create(user=request.user, post=post)
+        like, created = Like.objects.get_or_create(
+            user=request.user, post=post
+        )
 
         if not created:
             like.delete()
