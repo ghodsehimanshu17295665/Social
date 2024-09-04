@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -29,7 +30,8 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "b56f-60-254-111-210.ngrok-free.app"]
 
 
 # Application definition
@@ -42,7 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "socialmedia",
-    'widget_tweaks',
+    "widget_tweaks",
 ]
 
 MIDDLEWARE = [
@@ -139,9 +141,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "socialmedia.User"
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'himanshughodse@gmail.com'
-EMAIL_HOST_PASSWORD = 'bfcd kfke ucwn srwe'
+EMAIL_HOST_USER = "himanshughodse@gmail.com"
+EMAIL_HOST_PASSWORD = "bfcd kfke ucwn srwe"
+
+
+CSRF_TRUSTED_ORIGINS = ["https://b56f-60-254-111-210.ngrok-free.app"]
