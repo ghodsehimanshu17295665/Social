@@ -1,31 +1,15 @@
-from django.urls import path
-from .views import (
-    Home,
-    UserProfile,
-    BlogList,
-    ViewBlog,
-    AddCommentView,
-    UpdateProfile,
-    CreatePost,
-    PostDetailView,
-    LogoutView,
-    LikePostView,
-    UserProfileView,
-    UserLoginView,
-    SignUpView,
-    Myblog,
-    Updateblog,
-    FollowUserView,
-    ActivateAccountView,
-    ChangePasswordView,
-    CustomPasswordResetView,
-    CustomPasswordResetDoneView,
-    CustomPasswordResetConfirmView,
-    CustomPasswordResetCompleteView,
-)
-from django.conf.urls.static import static
 from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import path
 
+from .views import (ActivateAccountView, AddCommentView, BlogList,
+                    ChangePasswordView, CreatePost,
+                    CustomPasswordResetCompleteView,
+                    CustomPasswordResetConfirmView,
+                    CustomPasswordResetDoneView, CustomPasswordResetView,
+                    FollowUserView, Home, LikePostView, LogoutView, Myblog,
+                    PostDetailView, SignUpView, Updateblog, UpdateProfile,
+                    UserLoginView, UserProfile, UserProfileView, ViewBlog)
 
 urlpatterns = [
     # Home Page
@@ -55,7 +39,7 @@ urlpatterns = [
     path("follow/<uuid:pk>/", FollowUserView.as_view(), name="follow_user"),
     # email verification
     path(
-        "activate/<str:uid>/<str:token>/",
+        "activate/<uuid:uid>/<str:token>/",  # <uuid:uid> for UUID type
         ActivateAccountView.as_view(),
         name="activate",
     ),
