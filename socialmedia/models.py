@@ -1,7 +1,9 @@
 import uuid
-from django.utils import timezone
-from django.db import models
+
 from django.contrib.auth.models import AbstractUser
+from django.db import models
+from django.utils import timezone
+
 from .managers import CustomUserManager
 
 
@@ -17,9 +19,7 @@ class User(AbstractUser, TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)  # Ensure email is unique
     email_verified = models.BooleanField(default=False)
-    verification_token = models.CharField(
-        max_length=100, blank=True, null=True
-    )
+    verification_token = models.CharField(max_length=100, blank=True, null=True)
     token_created_at = models.DateTimeField(blank=True, null=True)
 
     objects = CustomUserManager()
@@ -37,9 +37,9 @@ class User(AbstractUser, TimeStampedModel):
 
     def is_token_valid(self):
         if self.token_created_at:
-            return (
-                timezone.now() - self.token_created_at
-            ) < timezone.timedelta(hours=24)
+            return (timezone.now() - self.token_created_at) < timezone.timedelta(
+                hours=24
+            )
         return False
 
 
@@ -49,9 +49,7 @@ class Profile(TimeStampedModel):
         ("Female", "Female"),
     ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="profile"
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="profile")
     profile_picture = models.ImageField(
         upload_to="profile_pics/",
         default="profile_pics/default_profile_pic.jpg",
@@ -72,9 +70,7 @@ class Post(TimeStampedModel):
     title = models.CharField(max_length=30)
     content = models.TextField()
     image = models.ImageField(upload_to="post_image/", null=True, blank=True)
-    user = models.ForeignKey(
-        User, related_name="post", on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(User, related_name="post", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
@@ -82,9 +78,7 @@ class Post(TimeStampedModel):
 
 class Comment(TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    post = models.ForeignKey(
-        Post, related_name="comment", on_delete=models.CASCADE
-    )
+    post = models.ForeignKey(Post, related_name="comment", on_delete=models.CASCADE)
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="user_comments"
     )
@@ -96,12 +90,8 @@ class Comment(TimeStampedModel):
 
 class Like(TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    post = models.ForeignKey(
-        Post, on_delete=models.CASCADE, related_name="post_likes"
-    )
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="user_likes"
-    )
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="post_likes")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_likes")
 
     class Meta:
         unique_together = ("post", "user")
@@ -112,9 +102,7 @@ class Like(TimeStampedModel):
 
 class Follow(TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="user"
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user")
     user_following = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="user_following"
     )
