@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #093982 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        form {
+            width: 100%;
+        }
+        input[type="text"], textarea, input[type="file"] {
+            margin-bottom: 10px;
+            padding: 10px;
+            width: 100%;
+        }
+        input[type="text"] {
+            font-size: 1.2rem;
+        }
+        textarea {
+            height: 200px;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #preview {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 100%;
+            max-width: 600px;
+            display: none;
+        }
+        #imagePreview {
+            max-width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create a New Post</h1>
+        <form id="postForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.title }}
+            {{ form.content }}
+            {{ form.image }}
+            {% comment %} <button type="button" id="previewButton">Preview Post</button> {% endcomment %}
+            <button type="submit">Create Post</button>
+            <a href="{% url 'profilePage' %}"><button type="button">Back To Profile</button></a>
+        </form>
+        <div id="preview">
+            <h2 id="previewTitle"></h2>
+            <p id="previewContent"></p>
+            <img id="imagePreview" src="" alt="">
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('postForm');
+        const previewButton = document.getElementById('previewButton');
+        const preview = document.getElementById('preview');
+        const previewTitle = document.getElementById('previewTitle');
+        const previewContent = document.getElementById('previewContent');
+        const imageInput = document.getElementById('id_image');
+        const imagePreview = document.getElementById('imagePreview');
+        let imageDataUrl = '';
+
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageDataUrl = e.target.result;
+                    imagePreview.src = imageDataUrl;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        previewButton.addEventListener('click', function() {
+            const title = document.getElementById('id_title').value;
+            const content = document.getElementById('id_content').value;
+
+            previewTitle.textContent = title;
+            previewContent.textContent = content;
+
+            if (imageDataUrl) {
+                imagePreview.src = imageDataUrl;
+                imagePreview.style.display = 'block';
+            } else {
+                imagePreview.style.display = 'none';
+            }
+
+            preview.style.display = 'block';
+        });
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Optional: Submit form via AJAX if you want to avoid page refresh or handle post preview
+            // Here, you'd use fetch or XMLHttpRequest to send the form data to the server
+
+            // For now, we're just simulating form submission
+            form.reset();
+            preview.style.display = 'none';
+            imageDataUrl = '';
+        });
+    </script>
+</body>
+</html>

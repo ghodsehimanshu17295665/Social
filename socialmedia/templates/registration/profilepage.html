@@ -53,7 +53,12 @@
 
     <!-- Profile Name / Logo -->
     <a href="{% url 'home_page' %}" class="logo d-flex align-items-center justify-content-center">
+<<<<<<< HEAD
       <h1 class="sitename">{{ data.user.first_name }} {{data.user.last_name}}</h1>
+=======
+      {% comment %} <h1 class="sitename">{{ data.user.first_name }} {{data.user.last_name}}</h1> {% endcomment %}
+      <h1>{{ data.user.username }}</h1>
+>>>>>>> a42570f0d471b5cb6a58a386fbef261eec300a57
     </a>
 
     <!-- Social Links -->
@@ -69,9 +74,18 @@
     <nav id="navmenu" class="navmenu">
       <ul>
         <li><a href="{% url 'home_page' %}"><i class="bi bi-house navicon"></i> Home</a></li>
+<<<<<<< HEAD
         <li><a href="{% url 'blog_list' %}"><i class="bi bi-journal-text navicon"></i> Blog</a></li>
         <li><a href="#about"><i class="bi bi-person navicon"></i> About</a></li>
         <li><a href="{% url "logout" %}"><i class="bi bi-person navicon"></i> LogOut</a></li>
+=======
+        <li><a href="#about"><i class="bi bi-person navicon"></i> About</a></li>
+        <li><a href="{% url 'blog_list' %}"><i class="bi bi-journal-text navicon"></i> Blog</a></li>
+        <li><a href="{% url "my_blog" %}"><i class="bi bi-journal-text navicon"></i> My Blog</a></li>
+        <li><a href="{% url "update_profile" %}"><i class="bi bi-person navicon"></i> Update Profile</a></li>
+        <li><a href="{% url "create_post" %}"><i class="bi bi-journal-text navicon"></i> Create Post</a></li>
+        <li><a href="{% url 'logout' %}"><i class="bi bi-person navicon"></i> LogOut</a></li>
+>>>>>>> a42570f0d471b5cb6a58a386fbef261eec300a57
       </ul>
     </nav>
   </header><!-- End Header -->
@@ -86,7 +100,13 @@
 
 
       <div class="container" data-aos="fade-up" data-aos-delay="100">
+<<<<<<< HEAD
         <h2>{{ data.user.first_name }} {{data.user.last_name}}</h2>
+=======
+        {% comment %} <h2>{{ data.user.first_name }} {{data.user.last_name}}</h2> {% endcomment %}
+        <h2>{{ data.user.username }}</h2>
+
+>>>>>>> a42570f0d471b5cb6a58a386fbef261eec300a57
         <p>I'm <span class="typed" data-typed-items="Designer, Developer, Freelancer, Photographer">{{ data.bio }}</span></p>
       </div>
     </section><!-- End Hero Section -->

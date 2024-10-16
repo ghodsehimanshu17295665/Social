@@ -22,7 +22,22 @@ class CustomUserAdmin(UserAdmin):
 
     fieldsets = (
         (None, {"fields": ("email", "password")}),
+<<<<<<< HEAD
         ("Personal info", {"fields": ("username")}),
+=======
+        (
+            "Personal info",
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "email_verified",
+                    "verification_token",
+                    "token_created_at",
+                )
+            },
+        ),
+>>>>>>> a42570f0d471b5cb6a58a386fbef261eec300a57
         (
             "Permissions",
             {
@@ -44,7 +59,11 @@ class CustomUserAdmin(UserAdmin):
                 "classes": ("wide",),
                 "fields": (
                     "email",
+<<<<<<< HEAD
                     "username"
+=======
+                    "username",
+>>>>>>> a42570f0d471b5cb6a58a386fbef261eec300a57
                     "password1",
                     "password2",
                     "is_active",
@@ -58,7 +77,15 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "profile_picture", "birth_date", "bio", "location", "gender")
+    list_display = (
+        "id",
+        "user",
+        "profile_picture",
+        "birth_date",
+        "bio",
+        "location",
+        "gender",
+    )
 
 
 @admin.register(Post)
