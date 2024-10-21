@@ -98,4 +98,4 @@ class LikeAdmin(admin.ModelAdmin):
 
 @admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "user_following")
+    list_display = ("id", "user", "user_following", "status")
