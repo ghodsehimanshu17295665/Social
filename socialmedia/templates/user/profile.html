@@ -55,7 +55,7 @@
       <h1 class="sitename">{{ data.user.username }}</h1>
     </a>
 
-    <!-- Follow Button / Logo -->
+    {% comment %} <!-- Follow Button / Logo -->
      {% if data.user != request.user %}
       <form action="{% url 'follow_user' pk=data.user.id %}" method="post" style="display: inline;">
         {% csrf_token %}
@@ -67,7 +67,7 @@
             {% endif %}
         </button>
       </form>
-    {% endif %}
+    {% endif %} {% endcomment %}
 
     <!-- Social Links -->
     <div class="social-links text-center">
@@ -84,7 +84,6 @@
         <li><a href="{% url 'home_page' %}"><i class="bi bi-house navicon"></i> Home</a></li>
         <li><a href="{% url 'blog_list' %}"><i class="bi bi-journal-text navicon"></i> Blog</a></li>
         <li><a href="#about"><i class="bi bi-person navicon"></i> About</a></li>
-        {% comment %} <li><a href="{% url "logout" %}"><i class="bi bi-person navicon"></i> LogOut</a></li> {% endcomment %}
       </ul>
     </nav>
   </header><!-- End Header -->
