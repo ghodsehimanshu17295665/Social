@@ -16,6 +16,9 @@ from .forms import (
     UpdateBlog,
 )
 from .models import Comment, Follow, Like, Post, Profile, User
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 
 class Home(TemplateView):
@@ -130,7 +133,7 @@ class LogoutView(View):
         return redirect("/")
 
 
-# Profile
+# Profile myProfile :-
 class UserProfileView(View):
     def get(self, request):
         if not request.user.is_authenticated:
@@ -251,16 +254,34 @@ class ViewBlog(TemplateView):
         return render(request, self.template_name, context=context)
 
 
+# class UserProfile(TemplateView):
+#     template_name = "user/profile.html"
+
+#     def get(self, request, pk):
+#         user = User.objects.filter(id=pk).first()
+#         data = Profile.objects.filter(user=user).first()
+#         context = {
+#             "data": data,
+#         }
+#         return render(request, self.template_name, context)
+
 class UserProfile(TemplateView):
     template_name = "user/profile.html"
 
     def get(self, request, pk):
-        user = User.objects.filter(id=pk).first()
-        data = Profile.objects.filter(user=user).first()
-        context = {
-            "data": data,
-        }
-        return render(request, self.template_name, context)
+        user = get_object_or_404(User, pk=pk)
+
+        # Check if the current user is following the profile user
+        follow = Follow.objects.filter(user=request.user, user_following=user).first()
+
+        if not follow or follow.status != 'approved':
+            return redirect("user_list")
+
+        # Get the user profile information
+        profile = Profile.objects.get(user=user)
+
+        context = {"data": profile}
+        return render(request, self.template_name, context=context)
 
 
 # Add Comment in Blog:-
@@ -307,22 +328,107 @@ class LikePostView(View):
         return redirect("blogview", pk=post.id)
 
 
-# Follow:-
+# List All User.
+class UserList(TemplateView):
+    template_name = "user/user_list.html"
+
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return redirect("/login/")
+
+        users = User.objects.exclude(pk=request.user.pk)
+        context = {"users": users}
+        return render(request, self.template_name, context=context)
+
+
 class FollowUserView(View):
     def post(self, request, pk):
-        user_to_follow = User.objects.filter(pk=pk).first()
+        user_to_follow = get_object_or_404(User, pk=pk)
 
-        if not user_to_follow:
-            return redirect("home_page")
-
+        # Check if there's already a follow request
         follow, created = Follow.objects.get_or_create(
-            user=request.user, user_following=user_to_follow
+            user=request.user,
+            user_following=user_to_follow,
+            defaults={'status': 'pending'}
         )
 
-        if not created:
-            follow.delete()
+        if created:
+            messages.success(request, f"You have sent a follow request to {user_to_follow.username}.")
+        else:
+            if follow.status == 'approved':
+                # Optionally handle unfollowing logic here
+                follow.delete()
+                messages.success(request, f"You have unfollowed {user_to_follow.username}.")
+            elif follow.status == 'pending':
+                messages.info(request, f"You have already sent a follow request to {user_to_follow.username}.")
 
-        return redirect("home_page")
+        return redirect("user_list")
+
+
+@method_decorator(login_required, name='dispatch')
+class FollowRequestsView(TemplateView):
+    template_name = 'registration/follow_requests.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Get all follow requests sent to the current user that are still pending
+        follow_requests = Follow.objects.filter(user_following=self.request.user, status='pending')
+        context['follow_requests'] = follow_requests
+        return context
+
+    def post(self, request, *args, **kwargs):
+        follow_id = request.POST.get('follow_id')
+        action = request.POST.get('action')
+
+        # Find the follow request and update its status
+        follow_request = Follow.objects.get(id=follow_id, user_following=request.user)
+        if action == 'approve':
+            follow_request.status = 'approved'
+        elif action == 'reject':
+            follow_request.status = 'rejected'
+        follow_request.save()
+
+        return redirect('follow_requests')
+# @login_required
+# def follow_requests_view(request):
+#     # Get all follow requests sent to the current user that are still pending
+#     follow_requests = Follow.objects.filter(user_following=request.user, status='pending')
+
+#     if request.method == 'POST':
+#         follow_id = request.POST.get('follow_id')
+#         action = request.POST.get('action')
+
+#         # Find the follow request and update its status
+#         follow_request = Follow.objects.get(id=follow_id, user_following=request.user)
+#         if action == 'approve':
+#             follow_request.status = 'approved'
+#         elif action == 'reject':
+#             follow_request.status = 'rejected'
+#         follow_request.save()
+
+#         return redirect('follow_requests')
+
+#     return render(request, 'registration/follow_requests.html', {'follow_requests': follow_requests})
+
+# class ApproveFollowRequestView(View):
+#     def post(self, request, pk):
+#         follow_request = get_object_or_404(Follow, pk=pk)
+
+#         # Ensure the request is coming from the user being followed
+#         if request.user == follow_request.user_following:
+#             follow_request.status = 'approved'
+#             follow_request.save()
+
+#         return redirect("user_list")
+
+
+# class RejectFollowRequestView(View):
+#     def post(self, request, pk):
+#         follow_request = get_object_or_404(Follow, pk=pk, user_following=request.user)
+#         if follow_request:
+#             follow_request.delete()
+
+#         return redirect('user_profile', pk=request.user.pk)
 
 
 # Change Password
