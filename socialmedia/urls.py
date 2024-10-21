@@ -9,7 +9,9 @@ from .views import (ActivateAccountView, AddCommentView, BlogList,
                     CustomPasswordResetDoneView, CustomPasswordResetView,
                     FollowUserView, Home, LikePostView, LogoutView, Myblog,
                     PostDetailView, SignUpView, Updateblog, UpdateProfile,
-                    UserLoginView, UserProfile, UserProfileView, ViewBlog)
+                    UserLoginView, UserProfile, UserProfileView, ViewBlog,
+                    UserList, FollowRequestsView)
+
 
 urlpatterns = [
     # Home Page
@@ -35,8 +37,8 @@ urlpatterns = [
         name="add_comment",
     ),
     path("post/<uuid:pk>/like/", LikePostView.as_view(), name="like_post"),
-    # Follow
-    path("follow/<uuid:pk>/", FollowUserView.as_view(), name="follow_user"),
+    # # Follow
+    # path("follow/<uuid:pk>/", FollowUserView.as_view(), name="follow_user"),
     # email verification
     path(
         "activate/<uuid:uid>/<str:token>/",  # <uuid:uid> for UUID type
@@ -70,4 +72,13 @@ urlpatterns = [
         CustomPasswordResetCompleteView.as_view(),
         name="password_reset_complete",
     ),
+    path('users/', UserList.as_view(), name='user_list'),
+    path('follow/<uuid:pk>/', FollowUserView.as_view(), name='follow_user'),
+    path('follow-requests/', FollowRequestsView.as_view(), name='follow_requests'),
+    # path('approve_follow_request/<uuid:pk>/', ApproveFollowRequestView.as_view(), name='approve_follow_request'),
+    # path('follow-requests/', views.follow_requests_view, name='follow_requests'),
+
+    # path('follow/<uuid:pk>/', FollowUserView.as_view(), name='follow_user'),
+    # path('approve-follow/<uuid:pk>/', ApproveFollowRequestView.as_view(), name='approve_follow_request'),
+    # path('reject-follow/<uuid:pk>/', RejectFollowRequestView.as_view(), name='reject_follow_request'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
