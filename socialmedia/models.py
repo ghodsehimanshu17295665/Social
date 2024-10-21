@@ -112,17 +112,34 @@ class Like(TimeStampedModel):
         return f"{self.user} likes {self.post.title}"
 
 
+# class Follow(TimeStampedModel):
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#     user = models.ForeignKey(
+#         User, on_delete=models.CASCADE, related_name="user"
+#     )
+#     user_following = models.ForeignKey(
+#         User, on_delete=models.CASCADE, related_name="user_following"
+#     )
+#     status = models.CharField(max_length=10, default='pending')
+
+#     class Meta:
+#         unique_together = ("user", "user_following")
+
+#     def __str__(self):
+#         return f"{self.user.email} follows {self.user_following.email} ({self.status})"
+
 class Follow(TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="user"
-    )
-    user_following = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="user_following"
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="following")
+    user_following = models.ForeignKey(User, on_delete=models.CASCADE, related_name="followers")
+    status = models.CharField(max_length=10, choices=[
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ], default='pending')
 
     class Meta:
         unique_together = ("user", "user_following")
 
     def __str__(self):
-        return f"{self.user.email} follows {self.user_following.email}"
+        return f"{self.user.email} follows {self.user_following.email} ({self.status})"
