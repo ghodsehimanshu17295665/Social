@@ -1,24 +1,20 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import PasswordChangeView
-from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
-from django.views.generic import DetailView, TemplateView, View
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.generic import DetailView, ListView, TemplateView, View
 
 from .email_utils import send_verification_email
-from .forms import (
-    CommentForm,
-    PostForm,
-    ProfileUpdateForm,
-    SignUpForm,
-    UpdateBlog,
-)
+from .forms import (CommentForm, PostForm, ProfileUpdateForm, SignUpForm,
+                    UpdateBlog)
 from .models import Comment, Follow, Like, Post, Profile, User
-from django.shortcuts import redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 
 
 class Home(TemplateView):
@@ -254,32 +250,27 @@ class ViewBlog(TemplateView):
         return render(request, self.template_name, context=context)
 
 
-# class UserProfile(TemplateView):
-#     template_name = "user/profile.html"
-
-#     def get(self, request, pk):
-#         user = User.objects.filter(id=pk).first()
-#         data = Profile.objects.filter(user=user).first()
-#         context = {
-#             "data": data,
-#         }
-#         return render(request, self.template_name, context)
-
 class UserProfile(TemplateView):
     template_name = "user/profile.html"
 
     def get(self, request, pk):
-        user = get_object_or_404(User, pk=pk)
+        user_to_view = get_object_or_404(User, pk=pk)
 
-        # Check if the current user is following the profile user
-        follow = Follow.objects.filter(user=request.user, user_following=user).first()
+        # Check if the current user or the viewed user has an approved follow request
+        follow = Follow.objects.filter(
+            (
+                Q(user=request.user, user_following=user_to_view)
+                | Q(user=user_to_view, user_following=request.user)
+            ),
+            status="approved",
+        ).first()
 
-        if not follow or follow.status != 'approved':
+        # If there is no approved follow relationship, redirect to the user list
+        if not follow:
             return redirect("user_list")
 
-        # Get the user profile information
-        profile = Profile.objects.get(user=user)
-
+        # Get the profile of the user being viewed
+        profile = Profile.objects.get(user=user_to_view)
         context = {"data": profile}
         return render(request, self.template_name, context=context)
 
@@ -329,106 +320,134 @@ class LikePostView(View):
 
 
 # List All User.
-class UserList(TemplateView):
+class UserList(ListView):
+    model = User
     template_name = "user/user_list.html"
+    context_object_name = "users"
 
-    def get(self, request):
-        if not request.user.is_authenticated:
-            return redirect("/login/")
-
-        users = User.objects.exclude(pk=request.user.pk)
-        context = {"users": users}
-        return render(request, self.template_name, context=context)
-
-
-class FollowUserView(View):
-    def post(self, request, pk):
-        user_to_follow = get_object_or_404(User, pk=pk)
-
-        # Check if there's already a follow request
-        follow, created = Follow.objects.get_or_create(
-            user=request.user,
-            user_following=user_to_follow,
-            defaults={'status': 'pending'}
-        )
-
-        if created:
-            messages.success(request, f"You have sent a follow request to {user_to_follow.username}.")
-        else:
-            if follow.status == 'approved':
-                # Optionally handle unfollowing logic here
-                follow.delete()
-                messages.success(request, f"You have unfollowed {user_to_follow.username}.")
-            elif follow.status == 'pending':
-                messages.info(request, f"You have already sent a follow request to {user_to_follow.username}.")
-
-        return redirect("user_list")
-
-
-@method_decorator(login_required, name='dispatch')
-class FollowRequestsView(TemplateView):
-    template_name = 'registration/follow_requests.html'
+    def get_queryset(self):
+        # Exclude the currently logged-in user from the queryset
+        return User.objects.exclude(pk=self.request.user.pk)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Get all follow requests sent to the current user that are still pending
-        follow_requests = Follow.objects.filter(user_following=self.request.user, status='pending')
-        context['follow_requests'] = follow_requests
+        follow_data = {}
+
+        # Get the current logged-in user
+        current_user = self.request.user
+
+        # Check follow status for each user
+        for user in context["users"]:
+            follow_request = Follow.objects.filter(
+                user=current_user, user_following=user
+            ).first()
+            if follow_request:
+                follow_data[user.pk] = follow_request.status
+            else:
+                follow_data[user.pk] = None
+
+        followers_qs = Follow.objects.filter(
+            user=self.request.user, status="approved"
+        )
+        pending_qs = Follow.objects.filter(
+            user=self.request.user, status="pending"
+        )
+
+        followers_list = []
+        pending_list = []
+
+        for data in followers_qs:
+            followers_list.append(data.user_following)
+
+        for data in pending_qs:
+            pending_list.append(data.user_following)
+
+        context["followers_list"] = followers_list
+        context["pending_list"] = pending_list
+        context["follow_data"] = follow_data
+        return context
+
+
+class FollowUserView(LoginRequiredMixin, View):
+    def post(self, request, user_to_follow_pk):
+        user_to_follow = get_object_or_404(User, pk=user_to_follow_pk)
+
+        # Check if the user is already following or has a pending request
+        existing_follow = Follow.objects.filter(
+            user=request.user, user_following=user_to_follow
+        ).first()
+
+        # If the follow relationship exists and is either pending or approved, return to the user's profile
+        if existing_follow and existing_follow.status in [
+            "pending",
+            "approved",
+        ]:
+            return redirect(
+                reverse("profile", kwargs={"pk": user_to_follow.pk})
+            )
+
+        # If no follow relationship exists, create a new follow request with 'pending' status
+        Follow.objects.create(
+            user=request.user, user_following=user_to_follow, status="pending"
+        )
+
+        return redirect(reverse("profile", kwargs={"pk": user_to_follow.pk}))
+
+
+@method_decorator(login_required, name="dispatch")
+class FollowRequestsView(TemplateView):
+    template_name = "registration/follow_requests.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Get pending follow requests
+        follow_requests = Follow.objects.filter(
+            user_following=self.request.user, status="pending"
+        )
+        context["follow_requests"] = follow_requests
         return context
 
     def post(self, request, *args, **kwargs):
-        follow_id = request.POST.get('follow_id')
-        action = request.POST.get('action')
+        follow_id = request.POST.get("follow_id")
+        action = request.POST.get("action")
 
-        # Find the follow request and update its status
-        follow_request = Follow.objects.get(id=follow_id, user_following=request.user)
-        if action == 'approve':
-            follow_request.status = 'approved'
-        elif action == 'reject':
-            follow_request.status = 'rejected'
-        follow_request.save()
+        # Find the follow request with a default to None
+        follow_request = Follow.objects.filter(
+            id=follow_id, user_following=request.user
+        ).first()
 
-        return redirect('follow_requests')
-# @login_required
-# def follow_requests_view(request):
-#     # Get all follow requests sent to the current user that are still pending
-#     follow_requests = Follow.objects.filter(user_following=request.user, status='pending')
+        if follow_request:
+            # Approve or reject the follow request based on the action
+            if action == "approve":
+                follow_request.status = "approved"
+                messages.success(
+                    request, "Follow request approved successfully."
+                )
+            elif action == "reject":
+                follow_request.status = "rejected"
+                messages.success(
+                    request, "Follow request rejected successfully."
+                )
+            follow_request.save()
+        else:
+            messages.error(request, "Invalid follow request.")
 
-#     if request.method == 'POST':
-#         follow_id = request.POST.get('follow_id')
-#         action = request.POST.get('action')
-
-#         # Find the follow request and update its status
-#         follow_request = Follow.objects.get(id=follow_id, user_following=request.user)
-#         if action == 'approve':
-#             follow_request.status = 'approved'
-#         elif action == 'reject':
-#             follow_request.status = 'rejected'
-#         follow_request.save()
-
-#         return redirect('follow_requests')
-
-#     return render(request, 'registration/follow_requests.html', {'follow_requests': follow_requests})
-
-# class ApproveFollowRequestView(View):
-#     def post(self, request, pk):
-#         follow_request = get_object_or_404(Follow, pk=pk)
-
-#         # Ensure the request is coming from the user being followed
-#         if request.user == follow_request.user_following:
-#             follow_request.status = 'approved'
-#             follow_request.save()
-
-#         return redirect("user_list")
+        return redirect("follow_requests")
 
 
-# class RejectFollowRequestView(View):
-#     def post(self, request, pk):
-#         follow_request = get_object_or_404(Follow, pk=pk, user_following=request.user)
-#         if follow_request:
-#             follow_request.delete()
+class UnfollowUserView(View):
+    def post(self, request, user_id):
+        user_to_unfollow = get_object_or_404(User, id=user_id)
+        Follow.objects.filter(
+            user=request.user, user_following=user_to_unfollow
+        ).delete()
 
-#         return redirect('user_profile', pk=request.user.pk)
+        # Add a success message
+        messages.success(
+            request, f"You have unfollowed {user_to_unfollow.username}."
+        )
+
+        return redirect("user_list")
 
 
 # Change Password
