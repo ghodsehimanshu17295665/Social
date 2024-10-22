@@ -7,11 +7,10 @@ from .views import (ActivateAccountView, AddCommentView, BlogList,
                     CustomPasswordResetCompleteView,
                     CustomPasswordResetConfirmView,
                     CustomPasswordResetDoneView, CustomPasswordResetView,
-                    FollowUserView, Home, LikePostView, LogoutView, Myblog,
-                    PostDetailView, SignUpView, Updateblog, UpdateProfile,
-                    UserLoginView, UserProfile, UserProfileView, ViewBlog,
-                    UserList, FollowRequestsView)
-
+                    FollowRequestsView, FollowUserView, Home, LikePostView,
+                    LogoutView, Myblog, PostDetailView, SignUpView,
+                    UnfollowUserView, Updateblog, UpdateProfile, UserList,
+                    UserLoginView, UserProfile, UserProfileView, ViewBlog)
 
 urlpatterns = [
     # Home Page
@@ -72,13 +71,21 @@ urlpatterns = [
         CustomPasswordResetCompleteView.as_view(),
         name="password_reset_complete",
     ),
-    path('users/', UserList.as_view(), name='user_list'),
-    path('follow/<uuid:pk>/', FollowUserView.as_view(), name='follow_user'),
-    path('follow-requests/', FollowRequestsView.as_view(), name='follow_requests'),
-    # path('approve_follow_request/<uuid:pk>/', ApproveFollowRequestView.as_view(), name='approve_follow_request'),
-    # path('follow-requests/', views.follow_requests_view, name='follow_requests'),
-
+    path("users/", UserList.as_view(), name="user_list"),
     # path('follow/<uuid:pk>/', FollowUserView.as_view(), name='follow_user'),
-    # path('approve-follow/<uuid:pk>/', ApproveFollowRequestView.as_view(), name='approve_follow_request'),
-    # path('reject-follow/<uuid:pk>/', RejectFollowRequestView.as_view(), name='reject_follow_request'),
+    path(
+        "follow/<uuid:user_to_follow_pk>/",
+        FollowUserView.as_view(),
+        name="follow_user",
+    ),
+    path(
+        "follow-requests/",
+        FollowRequestsView.as_view(),
+        name="follow_requests",
+    ),
+    path(
+        "unfollow/<uuid:user_id>/",
+        UnfollowUserView.as_view(),
+        name="unfollow_user",
+    ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
