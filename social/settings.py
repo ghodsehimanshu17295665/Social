@@ -34,6 +34,8 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "b56f-60-254-111-210.ngrok-free.app"]
 
 
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -45,7 +47,13 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "socialmedia",
     "widget_tweaks",
+    "django.contrib.sites",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
 ]
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -55,7 +63,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
+
 
 ROOT_URLCONF = "social.urls"
 
@@ -150,3 +160,32 @@ EMAIL_HOST_PASSWORD = "bfcd kfke ucwn srwe"
 
 
 CSRF_TRUSTED_ORIGINS = ["https://b56f-60-254-111-210.ngrok-free.app"]
+
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+    }
+}
+
+SITE_ID = 5
+
+LOGIN_REDIRECT_URL = '/profile'
+LOGOUT_REDIRECT_URL = '/home_page'
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # Tell Allauth there is no 'username' field
+ACCOUNT_EMAIL_REQUIRED = True             # Email is required for sign-up
+ACCOUNT_USERNAME_REQUIRED = False         # Username is not required
+ACCOUNT_AUTHENTICATION_METHOD = 'email'   # Use email for login
+SOCIALACCOUNT_LOGIN_ON_GET = True
