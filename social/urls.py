@@ -23,6 +23,8 @@ from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # path("signup/", views.sign_up, name="signup"),
+
     path("", include("socialmedia.urls")),
+    # path("", include("googleauthentication.urls")),
+    path('accounts/', include('allauth.urls')),
 ]
