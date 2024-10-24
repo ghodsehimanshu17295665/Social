@@ -17,11 +17,10 @@ class TimeStampedModel(models.Model):
 
 class User(AbstractUser, TimeStampedModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    username = None
     email = models.EmailField(unique=True)  # Ensure email is unique
     email_verified = models.BooleanField(default=False)
-    verification_token = models.CharField(
-        max_length=100, blank=True, null=True
-    )
+    verification_token = models.CharField(max_length=100, blank=True, null=True)
     token_created_at = models.DateTimeField(blank=True, null=True)
 
     objects = CustomUserManager()
