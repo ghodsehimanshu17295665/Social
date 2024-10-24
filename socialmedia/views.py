@@ -145,12 +145,13 @@ class UpdateProfile(TemplateView):
     template_name = "registration/updateprofile.html"
 
     def get(self, request):
-        profile = Profile.objects.get(user=request.user)
+        profile = Profile.objects.filter(user=request.user).first()
         form = ProfileUpdateForm(instance=profile)
         return render(request, self.template_name, {"form": form})
 
     def post(self, request):
-        profile = Profile.objects.get(user=request.user)
+        profile = Profile.objects.filter(user=request.user).first()
+        
         form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
@@ -475,3 +476,8 @@ class CustomPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
 
 class CustomPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
     template_name = "socialmedia/password_reset_complete.html"
+
+
+def signup_redirect(request):
+    messages.error(request, "Something wrong here, it may be that you already have account!")
+    return redirect("home_page")
