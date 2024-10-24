@@ -33,9 +33,6 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 # ALLOWED_HOSTS = []
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", "b56f-60-254-111-210.ngrok-free.app"]
 
-
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -64,6 +61,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "socialmedia.middleware.AutoLogoutMiddleware",
 ]
 
 
@@ -189,3 +187,11 @@ ACCOUNT_EMAIL_REQUIRED = True             # Email is required for sign-up
 ACCOUNT_USERNAME_REQUIRED = False         # Username is not required
 ACCOUNT_AUTHENTICATION_METHOD = 'email'   # Use email for login
 SOCIALACCOUNT_LOGIN_ON_GET = True
+
+
+# Set session to expire when the user closes the browser
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+# Optionally, set a session timeout (in seconds)
+SESSION_COOKIE_AGE = 60  # 1 minutes
+AUTO_LOGOUT_ENABLED = True  # Set to False to disable auto logout
