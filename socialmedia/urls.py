@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
+from . import views
 
 from .views import (ActivateAccountView, AddCommentView, BlogList,
                     ChangePasswordView, CreatePost,
@@ -17,6 +18,7 @@ urlpatterns = [
     path("", Home.as_view(), name="home_page"),
     # signUp/Login/Logout Page
     path("signup/", SignUpView.as_view(), name="signup"),
+    path('accounts/signup/', views.signup_redirect, name='signup_redirect'),
     path("login/", UserLoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     # User Profile related page
