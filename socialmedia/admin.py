@@ -10,12 +10,13 @@ class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     model = User
-    list_display = (
+    list_display = ("id","username",
+                    "first_name",
         "email",
         "is_staff",
         "is_superuser",
         "is_active",
-    )
+    )   
     list_filter = ("is_staff", "is_superuser", "is_active")
     search_fields = ("email", "username")
     ordering = ("email",)
