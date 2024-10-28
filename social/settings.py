@@ -89,10 +89,20 @@ WSGI_APPLICATION = "social.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'social_db',  # Name of your PostgreSQL database
+        'USER': 'social_user',  # PostgreSQL username you created
+        'PASSWORD': 'password123',  # PostgreSQL password you set
+        'HOST': 'localhost',  # Leave as 'localhost' if you're running locally
+        'PORT': '5432',  # Default PostgreSQL port
     }
 }
 
@@ -177,7 +187,7 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-SITE_ID = 5
+SITE_ID = 6
 
 LOGIN_REDIRECT_URL = '/profile'
 LOGOUT_REDIRECT_URL = '/home_page'
