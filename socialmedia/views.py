@@ -15,6 +15,7 @@ from .email_utils import send_verification_email
 from .forms import (CommentForm, PostForm, ProfileUpdateForm, SignUpForm,
                     UpdateBlog)
 from .models import Comment, Follow, Like, Post, Profile, User
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class Home(TemplateView):
@@ -140,9 +141,30 @@ class UserProfileView(View):
         return render(request, "registration/profilepage.html", context)
 
 
-# Update Profile Page:-
-class UpdateProfile(TemplateView):
+# # Update Profile Page:-
+# class UpdateProfile(TemplateView):
+#     template_name = "registration/updateprofile.html"
+
+#     def get(self, request):
+#         profile = Profile.objects.filter(user=request.user).first()
+#         form = ProfileUpdateForm(instance=profile)
+#         return render(request, self.template_name, {"form": form})
+
+#     def post(self, request):
+#         profile = Profile.objects.filter(user=request.user).first()
+#         form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(
+#                 request, "Your profile has been updated successfully!"
+#             )
+#             return redirect("/profile/page/")
+#         else:
+#             messages.error(request, "Please correct the errors below.")
+#         return render(request, self.template_name, {"form": form})
+class UpdateProfile(LoginRequiredMixin, TemplateView):
     template_name = "registration/updateprofile.html"
+    login_url = '/login/'  # Redirect URL for unauthorized users
 
     def get(self, request):
         profile = Profile.objects.filter(user=request.user).first()
@@ -151,13 +173,10 @@ class UpdateProfile(TemplateView):
 
     def post(self, request):
         profile = Profile.objects.filter(user=request.user).first()
-        
         form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-            messages.success(
-                request, "Your profile has been updated successfully!"
-            )
+            messages.success(request, "Your profile has been updated successfully!")
             return redirect("/profile/page/")
         else:
             messages.error(request, "Please correct the errors below.")
