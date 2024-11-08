@@ -19,7 +19,7 @@ class AutoLogoutMiddleware:
             if last_activity is None:
                 request.session['last_activity'] = now.timestamp()
             else:
-                if (now.timestamp() - last_activity) > 60:  # 3 minutes
+                if (now.timestamp() - last_activity) > 180:  # 3 minutes
                     logout(request)
                     request.session.flush()
 
