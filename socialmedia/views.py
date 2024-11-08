@@ -12,8 +12,13 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, TemplateView, View
 
 from .email_utils import send_verification_email
-from .forms import (CommentForm, PostForm, ProfileUpdateForm, SignUpForm,
-                    UpdateBlog)
+from .forms import (
+    CommentForm,
+    PostForm,
+    ProfileUpdateForm,
+    SignUpForm,
+    UpdateBlog,
+)
 from .models import Comment, Follow, Like, Post, Profile, User
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -141,45 +146,30 @@ class UserProfileView(View):
         return render(request, "registration/profilepage.html", context)
 
 
-# # Update Profile Page:-
-# class UpdateProfile(TemplateView):
-#     template_name = "registration/updateprofile.html"
-
-#     def get(self, request):
-#         profile = Profile.objects.filter(user=request.user).first()
-#         form = ProfileUpdateForm(instance=profile)
-#         return render(request, self.template_name, {"form": form})
-
-#     def post(self, request):
-#         profile = Profile.objects.filter(user=request.user).first()
-#         form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(
-#                 request, "Your profile has been updated successfully!"
-#             )
-#             return redirect("/profile/page/")
-#         else:
-#             messages.error(request, "Please correct the errors below.")
-#         return render(request, self.template_name, {"form": form})
 class UpdateProfile(LoginRequiredMixin, TemplateView):
     template_name = "registration/updateprofile.html"
-    login_url = '/login/'  # Redirect URL for unauthorized users
+    login_url = "/login/"  # Redirect URL for unauthorized users
 
     def get(self, request):
         profile = Profile.objects.filter(user=request.user).first()
-        form = ProfileUpdateForm(instance=profile)
+        form = ProfileUpdateForm(
+            instance=profile, initial={"first_name": request.user.first_name}
+        )
         return render(request, self.template_name, {"form": form})
 
     def post(self, request):
-        profile = Profile.objects.filter(user=request.user).first()
+        profile, created = Profile.objects.get_or_create(user=request.user)
         form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
+
         if form.is_valid():
             form.save()
-            messages.success(request, "Your profile has been updated successfully!")
+            messages.success(
+                request, "Your profile has been updated successfully!"
+            )
             return redirect("/profile/page/")
         else:
             messages.error(request, "Please correct the errors below.")
+
         return render(request, self.template_name, {"form": form})
 
 
@@ -498,5 +488,8 @@ class CustomPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
 
 
 def signup_redirect(request):
-    messages.error(request, "Something wrong here, it may be that you already have account!")
+    messages.error(
+        request,
+        "Something wrong here, it may be that you already have account!",
+    )
     return redirect("home_page")
