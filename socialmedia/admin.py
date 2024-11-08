@@ -10,15 +10,16 @@ class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     model = User
-    list_display = ("id","username",
-                    "first_name",
+    list_display = (
+        "id",
+        "first_name",
         "email",
         "is_staff",
         "is_superuser",
         "is_active",
-    )   
+    )
     list_filter = ("is_staff", "is_superuser", "is_active")
-    search_fields = ("email", "username")
+    search_fields = ("email", "first_name")
     ordering = ("email",)
 
     fieldsets = (
@@ -27,6 +28,7 @@ class CustomUserAdmin(UserAdmin):
             "Personal info",
             {
                 "fields": (
+                    # "username",
                     "first_name",
                     "last_name",
                     "email_verified",
