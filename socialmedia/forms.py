@@ -1,4 +1,5 @@
 from django import forms
+
 # from socialmedia.models import Post
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 
@@ -20,10 +21,11 @@ class CommentForm(forms.ModelForm):
 
 class SignUpForm(UserCreationForm):
     # email = forms.EmailField(required=True)
+    first_name = forms.CharField(required=True)
 
     class Meta:
         model = User
-        fields = ["email", "password1", "password2"]
+        fields = ["first_name", "email", "password1", "password2"]
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -41,12 +43,25 @@ class CustomUserChangeForm(UserChangeForm):
 
 
 class ProfileUpdateForm(forms.ModelForm):
+    first_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Enter your first name",
+            }
+        ),
+    )
+
     class Meta:
         model = Profile
         fields = ["profile_picture", "birth_date", "bio", "location", "gender"]
         widgets = {
             "profile_picture": forms.ClearableFileInput(
-                attrs={"class": "form-control-file", "style": "max-width: 100%;"}
+                attrs={
+                    "class": "form-control-file",
+                    "style": "max-width: 100%;",
+                }
             ),
             "birth_date": forms.DateInput(
                 attrs={
@@ -75,6 +90,14 @@ class ProfileUpdateForm(forms.ModelForm):
             ),
         }
 
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        profile.user.first_name = self.cleaned_data.get("first_name")
+        if commit:
+            profile.user.save()
+            profile.save()
+        return profile
+
 
 class UpdateBlog(forms.ModelForm):
     class Meta:
@@ -97,7 +120,10 @@ class UpdateBlog(forms.ModelForm):
                 }
             ),
             "image": forms.ClearableFileInput(
-                attrs={"class": "form-control-file", "style": "max-width: 100%;"}
+                attrs={
+                    "class": "form-control-file",
+                    "style": "max-width: 100%;",
+                }
             ),
         }
 
