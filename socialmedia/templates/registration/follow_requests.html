@@ -129,7 +129,7 @@
             <tbody>
                 {% for follow_request in follow_requests %}
                     <tr>
-                        <td>{{ follow_request.user.username }}</td>
+                        <td>{{ follow_request.user.first_name }}</td>
                         <td>
                             <form method="POST" style="display: inline;">
                                 {% csrf_token %}

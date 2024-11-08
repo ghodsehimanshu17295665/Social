@@ -17,7 +17,7 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
           <div class="user-info">
             {% if request.user != post.user %}
-            <a href="{% url 'profile' post.user.id %}" class="btn btn-primary">{{ post.user.username }}</a>
+            <a href="{% url 'profile' post.user.id %}" class="btn btn-primary">{{ post.user.first_name }}</a>
             {% else %}
             <a href="{% url 'profilePage' %}" class="btn btn-primary">{{ post.user.username }}</a>
             {% endif %}

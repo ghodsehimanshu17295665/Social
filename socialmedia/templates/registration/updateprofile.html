@@ -37,6 +37,10 @@
         <h1 class="text-center">Update Profile</h1>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_first_name" class="form-label">First Name</label>
+                <input type="text" name="first_name" class="form-control" id="id_first_name" placeholder="Enter your first name" value="{{ form.first_name.value|default_if_none:'' }}">
+            </div>
             {{ form.as_p }}
             <button type="submit" class="btn btn-primary">Update Profile</button>
         </form>

@@ -63,7 +63,7 @@
       <img src="{{ post.image.url }}" class="card-img-top blog-image" alt="Blog post image" />
       {% endif %}
         <p>{{ post.content }}</p>
-        <p><strong>Posted by:</strong> {{ post.user.username }}</p>
+        <p><strong>Posted by:</strong> {{ post.user.first_name }}</p>
         <a href="{% url 'profilePage' %}"><button type="button">Back To Profile</button></a>
     </div>
 

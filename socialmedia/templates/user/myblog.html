@@ -84,7 +84,7 @@
             {% for post in posts %}
             <tr>
                 <td>{{ post.title }}</td>
-                <td>{{ post.user.username }}</td>
+                <td>{{ post.user.first_name }}</td>
                 <td>
                     <a class="btn btn-warning" href="{% url 'blogview' post.id %}">View</a>
                     <a class="btn btn-primary" href="{% url 'update_blog' post.id %}">Update</a>
