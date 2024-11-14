@@ -21,6 +21,7 @@ from .forms import (
 )
 from .models import Comment, Follow, Like, Post, Profile, User
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse, HttpResponseBadRequest
 
 
 class Home(TemplateView):
@@ -286,39 +287,44 @@ class UserProfile(TemplateView):
 
 
 # Add Comment in Blog:-
-class AddCommentView(TemplateView):
-    template_name = "user/Viewblog.html"
+class AddCommentView(View):
+    def post(self, request, *args, **kwargs):
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            post_id = kwargs.get("pk")
+            comment_text = request.POST.get("comment")
 
-    def get(self, request, pk):
-        post = Post.objects.filter(id=pk).first()
-        comments = Comment.objects.filter(post=post)
-        form = CommentForm()
-        context = {"post": post, "comments": comments, "form": form}
-        return render(request, self.template_name, context=context)
+            if request.user.is_authenticated and comment_text:
+                form = CommentForm({"comment": comment_text})
 
-    def post(self, request, pk):
-        post = Post.objects.filter(id=pk).first()
-        form = CommentForm(request.POST)
+                if form.is_valid():
+                    # Save the comment
+                    comment = form.save(commit=False)
+                    comment.user = request.user
+                    comment.post_id = post_id
+                    comment.save()
 
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.post = post
-            comment.user = request.user
-            comment.save()
-            return redirect("add_comment", pk=pk)
+                    # Prepare response data
+                    response_data = {
+                        "user": request.user.email,
+                        "comment": comment.comment,
+                        "created_at": comment.created_at.strftime("%B %d, %Y"),
+                    }
+                    return JsonResponse(response_data, status=201)
+                else:
+                    return JsonResponse(
+                        {"error": "Invalid form data"}, status=400
+                    )
+            else:
+                return JsonResponse(
+                    {"error": "Unauthorized or empty comment"}, status=401
+                )
 
-        comments = Comment.objects.filter(post=post)
-        context = {"post": post, "comments": comments, "form": form}
-        return render(request, self.template_name, context)
+        return JsonResponse({"error": "Bad request"}, status=400)
 
 
-# Add Like:-
 class LikePostView(View):
     def post(self, request, pk):
-        post = Post.objects.filter(id=pk).first()
-
-        if post is None:
-            return redirect("home_page")
+        post = get_object_or_404(Post, id=pk)
         like, created = Like.objects.get_or_create(
             user=request.user, post=post
         )
@@ -326,7 +332,14 @@ class LikePostView(View):
         if not created:
             like.delete()
 
-        return redirect("blogview", pk=post.id)
+        # Debugging information for AJAX response
+        response_data = {
+            "liked": created,
+            "likes_count": post.post_likes.count(),
+        }
+        print("AJAX Response Data:", response_data)
+
+        return JsonResponse(response_data)
 
 
 # List All User.
