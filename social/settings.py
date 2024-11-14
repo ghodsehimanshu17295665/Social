@@ -31,13 +31,14 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 # ALLOWED_HOSTS = []
-# ALLOWED_HOSTS = ["127.0.0.1", "localhost", "b56f-60-254-111-210.ngrok-free.app"]
-# https://9584-2405-201-3027-e01e-6d21-2a0-d892-a83e.ngrok-free.app
-ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS = [
-    'https://89e6-2405-201-3027-e01e-9ede-d608-a5fe-f55d.ngrok-free.app',
-]
+# Define allowed hosts for security
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "*.ngrok-free.app"]
 
+# Trusted origins for CSRF protection (adjust for ngrok URLs)
+CSRF_TRUSTED_ORIGINS = [
+    "https://b56f-60-254-111-210.ngrok-free.app",
+    "https://89e6-2405-201-3027-e01e-9ede-d608-a5fe-f55d.ngrok-free.app",
+]
 
 # Application definition
 
@@ -62,7 +63,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    # "django.middleware.csrf.CsrfViewMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -173,7 +174,10 @@ EMAIL_HOST_USER = "himanshughodse@gmail.com"
 EMAIL_HOST_PASSWORD = "bfcd kfke ucwn srwe"
 
 
-CSRF_TRUSTED_ORIGINS = ["https://b56f-60-254-111-210.ngrok-free.app"]
+# CSRF_TRUSTED_ORIGINS = [
+#     "https://b56f-60-254-111-210.ngrok-free.app",
+#     "https://89e6-2405-201-3027-e01e-9ede-d608-a5fe-f55d.ngrok-free.app"
+# ]
 
 
 AUTHENTICATION_BACKENDS = [
