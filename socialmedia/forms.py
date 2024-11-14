@@ -12,9 +12,13 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ["title", "content", "image"]
         widgets = {
-            'title': forms.TextInput(attrs={'placeholder': 'Enter title here....'}),
-            'content': forms.Textarea(attrs={'placeholder': 'Enter content here....'}),
-            'image': forms.FileInput(attrs={'placeholder': 'Upload an image'}),
+            "title": forms.TextInput(
+                attrs={"placeholder": "Enter title here"}
+            ),
+            "content": forms.Textarea(
+                attrs={"placeholder": "Enter content here"}
+            ),
+            "image": forms.FileInput(attrs={"placeholder": "Upload an image"}),
         }
 
 
