@@ -6,8 +6,7 @@
 
 {% block content %}
   <div class="container">
-    <br /><br />
-    <h1 class="text-center mb-4">Blog Posts</h1>
+    <h1 class="text-center mb-4">Blog Post</h1>
     <div class="card mb-4">
       {% if post.image %}
         <img src="{{ post.image.url }}" class="card-img-top blog-image" alt="Blog post image" />
@@ -15,40 +14,29 @@
       <div class="card-body">
         <h2 class="card-title">{{ post.title }}</h2>
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <div class="user-info">
-            {% if request.user != post.user %}
+          <div>
             <a href="{% url 'profile' post.user.id %}" class="btn btn-primary">{{ post.user.first_name }}</a>
-            {% else %}
-            <a href="{% url 'profilePage' %}" class="btn btn-primary">{{ post.user.username }}</a>
-            {% endif %}
           </div>
           <small class="text-muted">{{ post.created_at|date:'F j, Y' }}</small>
         </div>
         <p class="card-text">{{ post.content }}</p>
-        <div class="d-flex justify-content-between align-items-center mt-3">
-          <div class="d-flex justify-content-between align-items-center mt-3">
-            <div>
-              <form action="{% url 'like_post' pk=post.id %}" method="post" style="display: inline;">
-                {% csrf_token %}
-                <button class="btn btn-outline-primary btn-sm me-2">
-                  <i class="bi bi-hand-thumbs-up"></i> 
-                  {% if request.user in post.post_likes.all %}
-                      Unlike
-                  {% else %}
-                      Like
-                  {% endif %}
-                </button>
-              </form>
 
-              <span class="likes-count">{{ post.post_likes.count }} likes</span>
-            </div>
-          </div>
-          
-          <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#comments{{ post.id }}"><i class="bi bi-chat"></i> Comments</button>
+        <!-- Like Button and Count -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <button id="like-btn" class="btn btn-outline-primary btn-sm me-2" onclick="handleLike('{{ post.id }}')">
+            {% if request.user in post.post_likes.all %}
+              Unlike
+            {% else %}
+              Like
+            {% endif %}
+          </button>
+          <span id="likes-count">{{ post.post_likes.count }} likes</span>
         </div>
-        <div class="collapse mt-3" id="comments{{ post.id }}">
+
+        <!-- Comments Section -->
+        <div id="comments-section" class="mt-3">
           <h5 class="mb-2">Comments</h5>
-          <ul class="list-group list-group-flush">
+          <ul class="list-group list-group-flush" id="comment-list">
             {% for comment in comments %}
               <li class="list-group-item">
                 <strong>{{ comment.user.email }}</strong>: {{ comment.comment }}
@@ -58,15 +46,77 @@
               <li class="list-group-item">No comments yet.</li>
             {% endfor %}
           </ul>
-          <form action="{% url 'add_comment' pk=post.id %}" method="post">
+          <form id="comment-form" onsubmit="handleComment(event, '{{ post.id }}')">
             {% csrf_token %}
-            <div class="mb-2">
-              <textarea class="form-control" name="comment" rows="2" placeholder="Add a comment"></textarea>
-            </div>
+            <textarea class="form-control mb-2" name="comment" placeholder="Add a comment"></textarea>
             <button type="submit" class="btn btn-primary btn-sm">Submit Comment</button>
           </form>
         </div>
       </div>
     </div>
   </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    // Function to handle Like button click
+    function handleLike(postId) {
+      $.ajax({
+        url: `/post/${postId}/like/`, // URL to the like endpoint
+        type: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}' // Set CSRF token in headers
+        },
+        success: function (response) {
+          if (response.liked !== undefined) {
+            // Update the like button and count
+            $('#like-btn').text(response.liked ? 'Unlike' : 'Like')
+            $('#likes-count').text(response.likes_count + ' likes')
+          }
+        },
+        error: function (xhr, status, error) {
+          console.error('Error:', error)
+          console.error('Status:', status)
+          console.error('Response:', xhr.responseText)
+        }
+      })
+    }
+    
+    // Function to handle Comment submission
+    function handleComment(event, postId) {
+        event.preventDefault();
+        const commentText = document.querySelector('#comment-form textarea[name="comment"]').value;
+    
+        if (commentText.trim() === "") {
+            alert("Comment cannot be empty.");
+            return;
+        }
+    
+        $.ajax({
+            url: `/blog/${postId}/add_comment/`,  // Verify URL path matches
+            type: "POST",
+            data: {
+                comment: commentText
+            },
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"  // Ensure CSRF token is rendered
+            },
+            success: function(response) {
+                // Check for successful response and append the new comment
+                $('#comment-list').append(`
+                    <li class="list-group-item">
+                        <strong>${response.user}</strong>: ${response.comment}
+                        <small class="text-muted d-block mt-1">${response.created_at}</small>
+                    </li>
+                `);
+                // Clear the comment input field
+                $('#comment-form textarea[name="comment"]').val('');
+            },
+            error: function(xhr, status, error) {
+                console.log("Error:", error);
+                console.log("Status:", status);
+                console.log("Response:", xhr.responseText);
+            }
+        });
+    }
+  </script>
 {% endblock %}
