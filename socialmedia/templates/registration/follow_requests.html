@@ -1,0 +1,149 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block css %}
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #093982 0%, #c3cfe2 100%);
+    margin: 0;
+    padding: 20px;
+    
+  }
+  /* Navbar styles */
+  .navbar {
+    background-color: #333333; /* Light black */
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+  }
+  .navbar a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border: 1px solid white;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+  }
+  .navbar a:hover {
+    background-color: #555555; /* Slightly lighter black */
+  }
+  h1 {
+    text-align: center;
+    color: #333;
+    margin-top: 20px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  }
+  th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  th {
+    background-color: #333333; /* Light black */
+    color: white;
+  }
+  tr:hover {
+    background-color: #f5f5f5;
+  }
+  .view-button {
+    background-color: #008CBA;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .view-button:hover {
+    background-color: #005f7f;
+  }
+  .btn-success {
+    background-color: #28a745; /* Bootstrap success color */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .btn-success:hover {
+    background-color: #218838;
+  }
+  .btn-danger {
+    background-color: #dc3545; /* Bootstrap danger color */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .btn-danger:hover {
+    background-color: #c82333;
+  }
+  .alert {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+  }
+  .alert.success {
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+    color: #3c763d;
+  }
+  .alert.error {
+    background-color: #f2dede;
+    border-color: #ebccd1;
+    color: #a94442;
+  }
+{% endblock %}
+
+{% block content %}
+    <h1>Follow Requests</h1>
+
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if follow_requests %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for follow_request in follow_requests %}
+                    <tr>
+                        <td>{{ follow_request.user.first_name }}</td>
+                        <td>
+                            <form method="POST" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="follow_id" value="{{ follow_request.id }}">
+                                <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+                                <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No pending follow requests.</p>
+    {% endif %}
+{% endblock %}

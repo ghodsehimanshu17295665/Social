@@ -1,0 +1,153 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block css %}
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #093982 0%, #c3cfe2 100%);
+        margin: 0;
+        padding: 20px;
+    }
+
+    /* Navbar styles */
+    .navbar {
+        background-color: #333333; /* Light black */
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+    }
+
+    .navbar a {
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border: 1px solid white;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+
+    .navbar a:hover {
+        background-color: #555555; /* Slightly lighter black */
+    }
+
+    h1 {
+        text-align: center;
+        color: #333;
+        margin-top: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #333333; /* Light black */
+        color: white;
+    }
+
+    tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .view-button {
+        background-color: #008CBA;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        margin: 4px 2px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .view-button:hover {
+        background-color: #005f7f;
+    }
+
+    .alert {
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+
+    .alert.success {
+        background-color: #dff0d8;
+        border-color: #d6e9c6;
+        color: #3c763d;
+    }
+
+    .alert.info {
+        background-color: #d9edf7;
+        border-color: #bce8f1;
+        color: #31708f;
+    }
+{% endblock %}
+
+{% block content %}
+  <br /><br /><br /><br />
+  <h1>Users List</h1>
+  
+  {% if messages %}
+    <div>
+      {% for message in messages %}
+        <div class="alert {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <table id="blogTable">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      {% for user in users %}
+      <tr>
+        <td>{{ user.first_name }}</td>
+        <td>{{ user.email }}</td>
+        <td>
+
+          {% if user not in followers_list and user not in pending_list %}
+          <form action="{% url 'follow_user' user.id %}" method="POST" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Follow</button>
+          </form>
+    
+          {% elif user in pending_list %}
+          <button type="button" class="btn btn-secondary" disabled>Pending Request</button>
+    
+
+          {% elif user in followers_list %}
+          <a class="btn btn-warning" href="{% url 'profile' user.id %}">View Profile</a>
+          <form action="{% url 'unfollow_user' user.id %}" method="POST" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Unfollow</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    
+
+    </tbody>
+  </table>
+{% endblock %}
